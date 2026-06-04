@@ -1,0 +1,11 @@
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\bin\Debug\net8.0\MikroTikSetupWizard.Domain.deps.json
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\bin\Debug\net8.0\MikroTikSetupWizard.Domain.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\bin\Debug\net8.0\MikroTikSetupWizard.Domain.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.AssemblyInfoInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.AssemblyInfo.cs
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.csproj.CoreCompileInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\refint\MikroTikSetupWizard.Domain.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\MikroTikSetupWizard.Domain.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Domain\obj\Debug\net8.0\ref\MikroTikSetupWizard.Domain.dll

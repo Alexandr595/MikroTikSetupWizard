@@ -1,0 +1,152 @@
+<Window x:Class="MikroTikSetupWizard.Desktop.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="MikroTik Setup Wizard"
+        Width="1180"
+        Height="760"
+        MinWidth="980"
+        MinHeight="620"
+        ResizeMode="CanResize"
+        Background="{DynamicResource AppBackgroundBrush}">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="40"
+                            CornerRadius="0"
+                            GlassFrameThickness="0"
+                            ResizeBorderThickness="6"
+                            UseAeroCaptionButtons="True" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Grid Margin="28,44,28,28">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="440" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="18"
+                Padding="26">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24"
+                                  ShadowDepth="0"
+                                  Opacity="0.18"
+                                  Color="#000000" />
+            </Border.Effect>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,16,0">
+                    <TextBlock Text="MikroTik Setup Wizard" Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="Первичная настройка RouterOS" Foreground="{DynamicResource MutedTextBrush}" />
+
+                    <TextBlock Text="Устройство" Style="{StaticResource SectionTitleStyle}" />
+
+                    <Button Content="Профиль: Малый офис"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding ApplySmallOfficeProfileCommand}" />
+
+                    <TextBlock Text="Имя роутера" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding RouterName, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Версия RouterOS" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding RouterOsVersions}"
+                              SelectedItem="{Binding SelectedRouterOsVersion}" />
+
+                    <TextBlock Text="Интерфейсы" Style="{StaticResource SectionTitleStyle}" />
+
+                    <TextBlock Text="WAN-интерфейс" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding WanInterface, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="LAN bridge" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding LanBridgeName, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="LAN" Style="{StaticResource SectionTitleStyle}" />
+
+                    <TextBlock Text="IP/CIDR LAN gateway" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding LanAddress, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Префикс сети" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding PrefixLengths}"
+                              SelectedItem="{Binding SelectedPrefixLength}" />
+
+                    <TextBlock Text="Начало DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DhcpPoolStart, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Конец DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DhcpPoolEnd, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="DNS-серверы" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DnsServers, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Администратор" Style="{StaticResource SectionTitleStyle}" />
+
+                    <TextBlock Text="Имя администратора" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding AdminUserName, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Пароль администратора" Style="{StaticResource FieldLabelStyle}" />
+                    <PasswordBox x:Name="AdminPasswordBox"
+                                 PasswordChanged="AdminPasswordBox_OnPasswordChanged" />
+
+                    <CheckBox Content="Включить NAT masquerade"
+                              IsChecked="{Binding EnableNat}" />
+                    <CheckBox Content="Добавить базовый firewall"
+                              IsChecked="{Binding EnableBasicFirewall}" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="Сгенерировать"
+                                Command="{Binding GeneratePreviewCommand}" />
+                        <Button Content="Сохранить .rsc"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding SaveFileCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Foreground="{DynamicResource SuccessBrush}"
+                               Margin="0,14,0,0" />
+
+                    <TextBlock Text="{Binding ValidationMessage}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               Margin="0,8,0,0" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Column="1"
+                Margin="20,0,0,0"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="18"
+                Padding="26">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24"
+                                  ShadowDepth="0"
+                                  Opacity="0.18"
+                                  Color="#000000" />
+            </Border.Effect>
+            <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,18">
+                <TextBlock Text="Предпросмотр .rsc" Style="{StaticResource TitleTextStyle}" />
+                <TextBlock Text="Скрипт генерируется из ConfigurationPlan и готов к сохранению."
+                           Foreground="{DynamicResource MutedTextBrush}" />
+            </StackPanel>
+
+            <TextBox Grid.Row="1"
+                     Text="{Binding GeneratedRsc, Mode=OneWay}"
+                     FontFamily="Consolas"
+                     FontSize="13"
+                     AcceptsReturn="True"
+                     AcceptsTab="True"
+                     IsReadOnly="True"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

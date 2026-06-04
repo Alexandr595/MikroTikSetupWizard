@@ -1,0 +1,17 @@
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Infrastructure.deps.json
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Infrastructure.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Infrastructure.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Application.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Domain.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Application.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\bin\Debug\net8.0\MikroTikSetupWizard.Domain.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.AssemblyInfo.cs
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTik.C16A7F7F.Up2Date
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\refint\MikroTikSetupWizard.Infrastructure.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\MikroTikSetupWizard.Infrastructure.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.Infrastructure\obj\Debug\net8.0\ref\MikroTikSetupWizard.Infrastructure.dll

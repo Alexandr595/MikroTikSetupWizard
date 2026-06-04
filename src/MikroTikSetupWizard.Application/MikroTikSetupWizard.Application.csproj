@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>MikroTikSetupWizard.Application</AssemblyName>
+    <RootNamespace>MikroTikSetupWizard.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MikroTikSetupWizard.Domain\MikroTikSetupWizard.Domain.csproj" />
+  </ItemGroup>
+</Project>

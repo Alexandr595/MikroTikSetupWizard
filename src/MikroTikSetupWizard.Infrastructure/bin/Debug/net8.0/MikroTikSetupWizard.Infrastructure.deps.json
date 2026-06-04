@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "MikroTikSetupWizard.Infrastructure/1.0.0": {
+        "dependencies": {
+          "MikroTikSetupWizard.Application": "1.0.0",
+          "MikroTikSetupWizard.Domain": "1.0.0"
+        },
+        "runtime": {
+          "MikroTikSetupWizard.Infrastructure.dll": {}
+        }
+      },
+      "MikroTikSetupWizard.Application/1.0.0": {
+        "dependencies": {
+          "MikroTikSetupWizard.Domain": "1.0.0"
+        },
+        "runtime": {
+          "MikroTikSetupWizard.Application.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "MikroTikSetupWizard.Domain/1.0.0": {
+        "runtime": {
+          "MikroTikSetupWizard.Domain.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MikroTikSetupWizard.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MikroTikSetupWizard.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MikroTikSetupWizard.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

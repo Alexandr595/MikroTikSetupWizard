@@ -1,0 +1,17 @@
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.RouterOs.deps.json
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.RouterOs.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.RouterOs.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.Application.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.Domain.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.Application.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\bin\Debug\net8.0\MikroTikSetupWizard.Domain.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.csproj.AssemblyReference.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.AssemblyInfoInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.AssemblyInfo.cs
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.csproj.CoreCompileInputs.cache
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTik.89316636.Up2Date
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\refint\MikroTikSetupWizard.RouterOs.dll
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\MikroTikSetupWizard.RouterOs.pdb
+C:\Users\user\Documents\Codex\2026-06-03\mikrotik-setup-wizard-mikrotik-windows-desktop\src\MikroTikSetupWizard.RouterOs\obj\Debug\net8.0\ref\MikroTikSetupWizard.RouterOs.dll
