@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="MikroTik Setup Wizard"
-        Width="1380"
+        Width="1440"
         Height="760"
-        MinWidth="1180"
+        MinWidth="1240"
         MinHeight="620"
         ResizeMode="CanResize"
         Background="{DynamicResource AppBackgroundBrush}">
@@ -19,7 +19,7 @@
 
     <Grid Margin="28,44,28,28">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="340" />
             <ColumnDefinition Width="440" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -52,6 +52,7 @@
                               DisplayMemberPath="Name" />
                     <TextBlock Text="{Binding SelectedDeviceRole.Description}"
                                Foreground="{DynamicResource MutedTextBrush}"
+                               FontSize="12"
                                Margin="0,2,0,16" />
                 </StackPanel>
 
@@ -65,33 +66,68 @@
                     <ItemsControl ItemsSource="{Binding ModuleNavigationItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="{DynamicResource InputBackgroundBrush}"
-                                        BorderBrush="{DynamicResource BorderBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
+                                <Border CornerRadius="10"
                                         Padding="12"
                                         Margin="0,0,10,10">
                                     <Border.Style>
                                         <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                            <Setter Property="BorderThickness" Value="1" />
                                             <Setter Property="Opacity" Value="1" />
                                             <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
+                                                    <Setter Property="BorderBrush" Value="#C8962F" />
+                                                </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsAllowed}" Value="False">
-                                                    <Setter Property="Opacity" Value="0.48" />
+                                                    <Setter Property="Opacity" Value="0.52" />
+                                                    <Setter Property="BorderBrush" Value="#3A3F4B" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
                                     <StackPanel>
-                                        <DockPanel LastChildFill="False">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Name}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{DynamicResource TextBrush}"
-                                                       DockPanel.Dock="Left" />
-                                            <TextBlock Text="{Binding Status}"
-                                                       FontSize="12"
-                                                       Foreground="{DynamicResource MutedTextBrush}"
-                                                       DockPanel.Dock="Right" />
-                                        </DockPanel>
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" />
+                                            <Border Grid.Column="1"
+                                                    CornerRadius="8"
+                                                    Padding="8,3"
+                                                    Margin="10,0,0,0">
+                                                <Border.Style>
+                                                    <Style TargetType="{x:Type Border}">
+                                                        <Setter Property="Background" Value="#202737" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                                        <Setter Property="BorderThickness" Value="1" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Включён">
+                                                                <Setter Property="Background" Value="#173826" />
+                                                                <Setter Property="BorderBrush" Value="#2F9E5F" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
+                                                                <Setter Property="Background" Value="#3A2F12" />
+                                                                <Setter Property="BorderBrush" Value="#C8962F" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Заблокирован">
+                                                                <Setter Property="Background" Value="#231F25" />
+                                                                <Setter Property="BorderBrush" Value="#4B2E38" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource TextBrush}" />
+                                            </Border>
+                                        </Grid>
                                         <TextBlock Text="{Binding Description}"
                                                    Foreground="{DynamicResource MutedTextBrush}"
                                                    FontSize="12"
