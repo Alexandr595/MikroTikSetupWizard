@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows.Input;
+using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
 using MikroTikSetupWizard.Desktop.Dialogs;
 
@@ -9,9 +10,13 @@ public sealed class WizardViewModel : ObservableObject
 {
     private readonly IMikroTikSetupWizardService _setupWizardService;
     private readonly ISaveFileDialogService _saveFileDialogService;
+    private readonly IModuleNavigationService _moduleNavigationService;
 
     private string _routerName = "MikroTik-Office";
     private string _selectedRouterOsVersion = "RouterOS 7";
+    private IReadOnlyList<DeviceRoleOptionDto> _deviceRoles = [];
+    private DeviceRoleOptionDto? _selectedDeviceRole;
+    private IReadOnlyList<ModuleNavigationItemDto> _moduleNavigationItems = [];
     private string _wanInterface = "ether1";
     private string _lanBridgeName = "bridge-LAN";
     private string _lanAddress = "192.168.88.1";
@@ -29,14 +34,20 @@ public sealed class WizardViewModel : ObservableObject
 
     public WizardViewModel(
         IMikroTikSetupWizardService setupWizardService,
-        ISaveFileDialogService saveFileDialogService)
+        ISaveFileDialogService saveFileDialogService,
+        IModuleNavigationService moduleNavigationService)
     {
         _setupWizardService = setupWizardService;
         _saveFileDialogService = saveFileDialogService;
+        _moduleNavigationService = moduleNavigationService;
 
         ApplySmallOfficeProfileCommand = new RelayCommand(_ => ApplySmallOfficeProfile());
         GeneratePreviewCommand = new RelayCommand(_ => GeneratePreview());
         SaveFileCommand = new RelayCommand(async _ => await SaveFileAsync());
+
+        DeviceRoles = _moduleNavigationService.GetDeviceRoles().ToArray();
+        SelectedDeviceRole = DeviceRoles.FirstOrDefault();
+        RefreshModuleNavigation();
     }
 
     public IReadOnlyList<string> RouterOsVersions { get; } =
@@ -70,6 +81,30 @@ public sealed class WizardViewModel : ObservableObject
 
     public ICommand ApplySmallOfficeProfileCommand { get; }
 
+    public IReadOnlyList<DeviceRoleOptionDto> DeviceRoles
+    {
+        get => _deviceRoles;
+        private set => SetProperty(ref _deviceRoles, value);
+    }
+
+    public DeviceRoleOptionDto? SelectedDeviceRole
+    {
+        get => _selectedDeviceRole;
+        set
+        {
+            if (SetProperty(ref _selectedDeviceRole, value))
+            {
+                RefreshModuleNavigation();
+            }
+        }
+    }
+
+    public IReadOnlyList<ModuleNavigationItemDto> ModuleNavigationItems
+    {
+        get => _moduleNavigationItems;
+        private set => SetProperty(ref _moduleNavigationItems, value);
+    }
+
     public string RouterName
     {
         get => _routerName;
@@ -79,7 +114,13 @@ public sealed class WizardViewModel : ObservableObject
     public string SelectedRouterOsVersion
     {
         get => _selectedRouterOsVersion;
-        set => SetProperty(ref _selectedRouterOsVersion, value);
+        set
+        {
+            if (SetProperty(ref _selectedRouterOsVersion, value))
+            {
+                RefreshModuleNavigation();
+            }
+        }
     }
 
     public string WanInterface
@@ -180,6 +221,19 @@ public sealed class WizardViewModel : ObservableObject
 
         GeneratedRsc = result.RscText;
         StatusMessage = "Предпросмотр обновлён.";
+    }
+
+    private void RefreshModuleNavigation()
+    {
+        if (SelectedDeviceRole is null)
+        {
+            ModuleNavigationItems = [];
+            return;
+        }
+
+        ModuleNavigationItems = _moduleNavigationService
+            .GetModules(SelectedDeviceRole.Id, SelectedRouterOsVersion)
+            .ToArray();
     }
 
     private void ApplySmallOfficeProfile()

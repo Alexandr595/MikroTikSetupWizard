@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="MikroTik Setup Wizard"
-        Width="1180"
+        Width="1380"
         Height="760"
-        MinWidth="980"
+        MinWidth="1180"
         MinHeight="620"
         ResizeMode="CanResize"
         Background="{DynamicResource AppBackgroundBrush}">
@@ -19,11 +19,124 @@
 
     <Grid Margin="28,44,28,28">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
             <ColumnDefinition Width="440" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="18"
+                Padding="24">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24"
+                                  ShadowDepth="0"
+                                  Opacity="0.18"
+                                  Color="#000000" />
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Роль устройства"
+                               Style="{StaticResource SectionTitleStyle}"
+                               Margin="0,0,0,10" />
+                    <ComboBox ItemsSource="{Binding DeviceRoles}"
+                              SelectedItem="{Binding SelectedDeviceRole}"
+                              DisplayMemberPath="Name" />
+                    <TextBlock Text="{Binding SelectedDeviceRole.Description}"
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               Margin="0,2,0,16" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="1"
+                           Text="Модули"
+                           Style="{StaticResource SectionTitleStyle}"
+                           Margin="0,10,0,10" />
+
+                <ScrollViewer Grid.Row="2"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding ModuleNavigationItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="12"
+                                        Margin="0,0,10,10">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Opacity" Value="1" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                    <Setter Property="Opacity" Value="0.48" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextBrush}"
+                                                       DockPanel.Dock="Left" />
+                                            <TextBlock Text="{Binding Status}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MutedTextBrush}"
+                                                       DockPanel.Dock="Right" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding Description}"
+                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding DisabledReason}"
+                                                   Foreground="{DynamicResource DangerBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,6,0,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DisabledReason}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Warning}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,6,0,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Warning}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="1"
+                Margin="20,0,0,0"
                 Background="{DynamicResource PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
@@ -112,7 +225,7 @@
             </ScrollViewer>
         </Border>
 
-        <Border Grid.Column="1"
+        <Border Grid.Column="2"
                 Margin="20,0,0,0"
                 Background="{DynamicResource PanelBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"

@@ -1,4 +1,5 @@
 using System.Windows;
+using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
 using MikroTikSetupWizard.Desktop.Dialogs;
 using MikroTikSetupWizard.Desktop.ViewModels;
@@ -16,7 +17,8 @@ public partial class App : System.Windows.Application
         {
             DataContext = new WizardViewModel(
                 new MikroTikSetupWizardService(),
-                new SaveFileDialogService())
+                new SaveFileDialogService(),
+                new ModuleNavigationService())
         };
 
         window.Show();
