@@ -86,7 +86,7 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
     public bool CanGoBack => CurrentStepIndex > 0;
 
     public bool CanGoNext => CurrentStepIndex < Steps.Count - 1
-        && (!IsReviewStepVisible || HasGeneratedPreview);
+        && !IsReviewStepVisible;
 
     public bool IsFirstStep => CurrentStepIndex == 0;
 
@@ -107,7 +107,7 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
     public bool IsGenerateActionVisible => IsReviewStepVisible;
 
     public bool IsNextActionVisible => !IsLastStep
-        && (!IsReviewStepVisible || HasGeneratedPreview);
+        && !IsReviewStepVisible;
 
     public bool IsSaveActionVisible => IsResultStepVisible;
 
@@ -123,7 +123,6 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
                 _saveFileCommand.RaiseCanExecuteChanged();
                 RefreshNavigationState();
                 OnPropertyChanged(nameof(HasGeneratedPreview));
-                OnPropertyChanged(nameof(IsNextActionVisible));
             }
         }
     }
@@ -163,7 +162,6 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
         }
 
         CurrentStepIndex++;
-        GeneratePreviewForReviewOrResult();
     }
 
     public void MoveToStep(string stepId)
@@ -207,7 +205,12 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
         }
 
         GeneratedRsc = result.RscText;
-        StatusMessage = "Предпросмотр .rsc обновлён.";
+        StatusMessage = "Конфигурация успешно сгенерирована.";
+
+        if (IsReviewStepVisible)
+        {
+            MoveToStep("result");
+        }
     }
 
     private async Task SaveFileAsync()
@@ -239,14 +242,6 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
         {
             StatusMessage = "Не удалось сохранить файл.";
             ValidationMessage = exception.Message;
-        }
-    }
-
-    private void GeneratePreviewForReviewOrResult()
-    {
-        if (IsReviewStepVisible || IsResultStepVisible)
-        {
-            GeneratePreview();
         }
     }
 

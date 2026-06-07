@@ -750,7 +750,7 @@
                         <Button Content="Назад"
                                 Command="{Binding BackCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}" />
-                        <Button Content="Сгенерировать"
+                        <Button Content="Сгенерировать .rsc"
                                 Command="{Binding GeneratePreviewCommand}"
                                 Visibility="{Binding IsGenerateActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Button Content="Далее"
