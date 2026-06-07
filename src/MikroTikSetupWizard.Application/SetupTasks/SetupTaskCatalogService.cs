@@ -19,7 +19,8 @@ public sealed class SetupTaskCatalogService : ISetupTaskCatalogService
 
     private static SetupTaskItemDto ToDto(SetupTask task)
     {
-        var isAvailable = task.TaskId == SetupTaskId.OfficeRouter;
+        var isAvailable = task.TaskId == SetupTaskId.OfficeRouter
+            || task.TaskId == SetupTaskId.AccessPoint;
 
         return new SetupTaskItemDto(
             task.TaskId.ToString(),

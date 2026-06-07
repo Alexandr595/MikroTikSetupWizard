@@ -18,6 +18,7 @@ public sealed class WizardViewModel : ObservableObject
     private bool _isHomeScreenVisible = true;
     private bool _isConfigureDeviceScreenVisible;
     private bool _isOfficeRouterWizardVisible;
+    private bool _isAccessPointWizardVisible;
     private bool _isDiagnosticsScreenVisible;
     private bool _isWorkspaceVisible;
     private bool _isAdvancedModeActive;
@@ -57,6 +58,10 @@ public sealed class WizardViewModel : ObservableObject
         _moduleNavigationService = moduleNavigationService;
         _setupTaskCatalogService = setupTaskCatalogService;
         OfficeRouterWizard = new OfficeRouterWizardViewModel(_setupWizardService, _saveFileDialogService);
+        AccessPointWizard = new AccessPointWizardViewModel(
+            new AccessPointConfigurationBuilder(),
+            _setupWizardService,
+            _saveFileDialogService);
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
@@ -116,6 +121,8 @@ public sealed class WizardViewModel : ObservableObject
 
     public OfficeRouterWizardViewModel OfficeRouterWizard { get; }
 
+    public AccessPointWizardViewModel AccessPointWizard { get; }
+
     public IReadOnlyList<SetupTaskItemDto> SetupTasks
     {
         get => _setupTasks;
@@ -138,6 +145,12 @@ public sealed class WizardViewModel : ObservableObject
     {
         get => _isOfficeRouterWizardVisible;
         private set => SetProperty(ref _isOfficeRouterWizardVisible, value);
+    }
+
+    public bool IsAccessPointWizardVisible
+    {
+        get => _isAccessPointWizardVisible;
+        private set => SetProperty(ref _isAccessPointWizardVisible, value);
     }
 
     public bool IsDiagnosticsScreenVisible
@@ -356,6 +369,12 @@ public sealed class WizardViewModel : ObservableObject
             return;
         }
 
+        if (task.Id == "access-point")
+        {
+            ShowScreen(accessPointWizard: true);
+            return;
+        }
+
         ShowScreen(officeRouterWizard: true);
     }
 
@@ -363,12 +382,14 @@ public sealed class WizardViewModel : ObservableObject
         bool home = false,
         bool configureDevice = false,
         bool officeRouterWizard = false,
+        bool accessPointWizard = false,
         bool diagnostics = false,
         bool workspace = false)
     {
         IsHomeScreenVisible = home;
         IsConfigureDeviceScreenVisible = configureDevice;
         IsOfficeRouterWizardVisible = officeRouterWizard;
+        IsAccessPointWizardVisible = accessPointWizard;
         IsDiagnosticsScreenVisible = diagnostics;
         IsWorkspaceVisible = workspace;
     }
