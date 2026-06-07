@@ -366,6 +366,11 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
         var errors = new List<string>();
         var (lanAddress, prefixLength, hasInvalidCidrPrefix) = GetLanAddressParts();
 
+        if (string.IsNullOrWhiteSpace(Input.RouterName))
+        {
+            errors.Add("Имя роутера не должно быть пустым.");
+        }
+
         if (string.IsNullOrWhiteSpace(Input.WanInterface))
         {
             errors.Add("WAN interface не должен быть пустым.");
@@ -419,7 +424,7 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
 
         if (publicDnsServers.Length > 0)
         {
-            warnings.Add($"Используются публичные DNS: {string.Join(", ", publicDnsServers)}.");
+            warnings.Add("Используются внешние DNS серверы (Cloudflare/Google).");
         }
 
         return warnings;

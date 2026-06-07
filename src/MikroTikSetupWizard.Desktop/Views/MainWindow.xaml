@@ -493,6 +493,10 @@
                                                        Style="{StaticResource SectionTitleStyle}"
                                                        Margin="0,0,0,10" />
 
+                                            <TextBlock Text="Имя роутера"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBox Text="{Binding Input.RouterName, UpdateSourceTrigger=PropertyChanged}" />
+
                                             <TextBlock Text="WAN interface"
                                                        Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding Input.WanInterface, UpdateSourceTrigger=PropertyChanged}" />
@@ -729,6 +733,9 @@
                                                            Margin="0,0,0,10" />
                                                 <TextBlock Text="Проверьте итоговый .rsc и сохраните файл."
                                                            Foreground="{DynamicResource MutedTextBrush}" />
+                                                <TextBlock Text="{Binding SummaryRouterName, StringFormat=Имя роутера: {0}}"
+                                                           Foreground="{DynamicResource MutedTextBrush}"
+                                                           Margin="0,6,0,0" />
 
                                             </StackPanel>
 
