@@ -9,6 +9,7 @@ public sealed class AccessPointWizardInputViewModel : ObservableObject
     private int _managementPrefixLength = 24;
     private string _defaultGateway = "192.168.88.1";
     private string _dnsServers = "1.1.1.1,8.8.8.8";
+    private bool _useRouterOs7Wifi = true;
     private string _ssid = string.Empty;
     private string _wifiPassword = string.Empty;
 
@@ -101,6 +102,27 @@ public sealed class AccessPointWizardInputViewModel : ObservableObject
         get => _dnsServers;
         set => SetProperty(ref _dnsServers, value);
     }
+
+    public bool UseRouterOs7Wifi
+    {
+        get => _useRouterOs7Wifi;
+        set
+        {
+            if (SetProperty(ref _useRouterOs7Wifi, value))
+            {
+                OnPropertyChanged(nameof(UseNoWifi));
+                OnPropertyChanged(nameof(IsWifiSettingsVisible));
+            }
+        }
+    }
+
+    public bool UseNoWifi
+    {
+        get => !UseRouterOs7Wifi;
+        set => UseRouterOs7Wifi = !value;
+    }
+
+    public bool IsWifiSettingsVisible => UseRouterOs7Wifi;
 
     public string Ssid
     {

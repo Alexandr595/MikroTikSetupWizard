@@ -200,6 +200,12 @@ public sealed class AccessPointWizardViewModel : ObservableObject
         ? "получается автоматически"
         : Input.DnsServers.Trim();
 
+    public string SummaryWifiType => Input.UseRouterOs7Wifi
+        ? "RouterOS 7 WiFi"
+        : "Disabled";
+
+    public bool IsWifiSummaryVisible => Input.UseRouterOs7Wifi;
+
     public string SummarySsid => string.IsNullOrWhiteSpace(Input.Ssid)
         ? "не указан"
         : Input.Ssid.Trim();
@@ -339,7 +345,17 @@ public sealed class AccessPointWizardViewModel : ObservableObject
             errors.Add("Bridge name не должен быть пустым.");
         }
 
-        if (!string.IsNullOrWhiteSpace(Input.WifiPassword) && Input.WifiPassword.Length < 8)
+        if (Input.UseRouterOs7Wifi && string.IsNullOrWhiteSpace(Input.Ssid))
+        {
+            errors.Add("SSID должен быть указан для RouterOS 7 WiFi.");
+        }
+
+        if (Input.UseRouterOs7Wifi && string.IsNullOrWhiteSpace(Input.WifiPassword))
+        {
+            errors.Add("Пароль Wi-Fi должен быть указан для RouterOS 7 WiFi.");
+        }
+
+        if (Input.UseRouterOs7Wifi && !string.IsNullOrWhiteSpace(Input.WifiPassword) && Input.WifiPassword.Length < 8)
         {
             errors.Add("Пароль Wi-Fi должен быть не короче 8 символов.");
         }
@@ -438,6 +454,8 @@ public sealed class AccessPointWizardViewModel : ObservableObject
         OnPropertyChanged(nameof(SummaryManagementIp));
         OnPropertyChanged(nameof(SummaryGateway));
         OnPropertyChanged(nameof(SummaryDns));
+        OnPropertyChanged(nameof(SummaryWifiType));
+        OnPropertyChanged(nameof(IsWifiSummaryVisible));
         OnPropertyChanged(nameof(SummarySsid));
         OnPropertyChanged(nameof(SummaryWifiPassword));
     }

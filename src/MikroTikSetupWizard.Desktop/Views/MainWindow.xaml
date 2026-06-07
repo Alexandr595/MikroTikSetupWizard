@@ -1027,18 +1027,30 @@
                                                        Style="{StaticResource SectionTitleStyle}"
                                                        Margin="0,0,0,10" />
 
-                                            <TextBlock Text="SSID"
+                                            <TextBlock Text="Тип Wi-Fi"
                                                        Style="{StaticResource FieldLabelStyle}" />
-                                            <TextBox Text="{Binding Input.Ssid, UpdateSourceTrigger=PropertyChanged}" />
+                                            <RadioButton Content="Без Wi-Fi"
+                                                         GroupName="AccessPointWifiMode"
+                                                         IsChecked="{Binding Input.UseNoWifi}" />
+                                            <RadioButton Content="RouterOS 7 WiFi"
+                                                         GroupName="AccessPointWifiMode"
+                                                         IsChecked="{Binding Input.UseRouterOs7Wifi}" />
 
-                                            <TextBlock Text="Пароль Wi-Fi"
-                                                       Style="{StaticResource FieldLabelStyle}" />
-                                            <TextBox Text="{Binding Input.WifiPassword, UpdateSourceTrigger=PropertyChanged}" />
+                                            <StackPanel Margin="0,14,0,0"
+                                                        Visibility="{Binding Input.IsWifiSettingsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="SSID"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <TextBox Text="{Binding Input.Ssid, UpdateSourceTrigger=PropertyChanged}" />
 
-                                            <TextBlock Text="Если SSID не указан, Wi-Fi-команды не будут добавлены в .rsc."
-                                                       Foreground="{DynamicResource MutedTextBrush}"
-                                                       FontSize="12"
-                                                       Margin="0,0,0,10" />
+                                                <TextBlock Text="Пароль Wi-Fi"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <TextBox Text="{Binding Input.WifiPassword, UpdateSourceTrigger=PropertyChanged}" />
+
+                                                <TextBlock Text="Будут сгенерированы только команды /interface wifi для RouterOS 7."
+                                                           Foreground="{DynamicResource MutedTextBrush}"
+                                                           FontSize="12"
+                                                           Margin="0,0,0,10" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
 
@@ -1095,10 +1107,16 @@
                                                             <TextBlock Text="все ethernet interfaces" FontWeight="SemiBold" />
                                                         </StackPanel>
                                                         <StackPanel Margin="0,0,24,12">
+                                                            <TextBlock Text="Тип Wi-Fi:" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            <TextBlock Text="{Binding SummaryWifiType}" FontWeight="SemiBold" />
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,24,12"
+                                                                    Visibility="{Binding IsWifiSummaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <TextBlock Text="SSID:" Foreground="{DynamicResource MutedTextBrush}" />
                                                             <TextBlock Text="{Binding SummarySsid}" FontWeight="SemiBold" />
                                                         </StackPanel>
-                                                        <StackPanel Margin="0,0,24,12">
+                                                        <StackPanel Margin="0,0,24,12"
+                                                                    Visibility="{Binding IsWifiSummaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                             <TextBlock Text="Пароль Wi-Fi:" Foreground="{DynamicResource MutedTextBrush}" />
                                                             <TextBlock Text="{Binding SummaryWifiPassword}" FontWeight="SemiBold" />
                                                         </StackPanel>

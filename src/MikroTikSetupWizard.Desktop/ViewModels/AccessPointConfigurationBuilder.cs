@@ -45,22 +45,15 @@ public sealed class AccessPointConfigurationBuilder
             script.AppendLine($"/ip dns set servers={dnsServers}");
         }
 
-        if (!string.IsNullOrWhiteSpace(input.Ssid))
+        if (input.UseRouterOs7Wifi)
         {
             script.AppendLine();
-            script.AppendLine($":if ([:len [/interface wireless find where default-name=wlan1]] > 0) do={{");
-            script.AppendLine($"    /interface wireless set [find where default-name=wlan1] mode=ap-bridge ssid=\"{ssid}\" disabled=no");
-
-            if (!string.IsNullOrWhiteSpace(input.WifiPassword))
-            {
-                script.AppendLine($"    /interface wireless security-profiles set [find default=yes] mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key=\"{wifiPassword}\"");
-            }
-
-            script.AppendLine($"    /interface bridge port add bridge=\"{bridgeName}\" interface=wlan1 comment=\"MikroTik Setup Wizard\"");
-            script.AppendLine("}");
-            script.AppendLine($":if ([:len [/interface wifi find where default-name=wifi1]] > 0) do={{");
-            script.AppendLine($"    /interface wifi set [find where default-name=wifi1] configuration.mode=ap configuration.ssid=\"{ssid}\" disabled=no");
-            script.AppendLine($"    /interface bridge port add bridge=\"{bridgeName}\" interface=wifi1 comment=\"MikroTik Setup Wizard\"");
+            script.AppendLine(":foreach wifiInterfaceId in=[/interface wifi find where default-name=wifi1] do={");
+            script.AppendLine("    :local wifiInterfaceName [/interface wifi get $wifiInterfaceId name]");
+            script.AppendLine($"    /interface wifi set $wifiInterfaceId configuration.mode=ap configuration.ssid=\"{ssid}\" security.authentication-types=wpa2-psk security.passphrase=\"{wifiPassword}\" disabled=no");
+            script.AppendLine("    :if ([:len [/interface bridge port find where interface=$wifiInterfaceName]] = 0) do={");
+            script.AppendLine($"        /interface bridge port add bridge=\"{bridgeName}\" interface=$wifiInterfaceName comment=\"MikroTik Setup Wizard\"");
+            script.AppendLine("    }");
             script.AppendLine("}");
         }
 
