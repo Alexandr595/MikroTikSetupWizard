@@ -56,6 +56,7 @@ public sealed class WizardViewModel : ObservableObject
         _saveFileDialogService = saveFileDialogService;
         _moduleNavigationService = moduleNavigationService;
         _setupTaskCatalogService = setupTaskCatalogService;
+        OfficeRouterWizard = new OfficeRouterWizardViewModel(_setupWizardService, _saveFileDialogService);
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
@@ -113,7 +114,7 @@ public sealed class WizardViewModel : ObservableObject
 
     public ICommand OpenSetupTaskCommand { get; }
 
-    public OfficeRouterWizardViewModel OfficeRouterWizard { get; } = new();
+    public OfficeRouterWizardViewModel OfficeRouterWizard { get; }
 
     public IReadOnlyList<SetupTaskItemDto> SetupTasks
     {
