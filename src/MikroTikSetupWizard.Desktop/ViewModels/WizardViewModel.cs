@@ -62,6 +62,7 @@ public sealed class WizardViewModel : ObservableObject
             new AccessPointConfigurationBuilder(),
             _setupWizardService,
             _saveFileDialogService);
+        DeviceDiscovery = new DeviceDiscoveryViewModel();
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
@@ -122,6 +123,8 @@ public sealed class WizardViewModel : ObservableObject
     public OfficeRouterWizardViewModel OfficeRouterWizard { get; }
 
     public AccessPointWizardViewModel AccessPointWizard { get; }
+
+    public DeviceDiscoveryViewModel DeviceDiscovery { get; }
 
     public IReadOnlyList<SetupTaskItemDto> SetupTasks
     {

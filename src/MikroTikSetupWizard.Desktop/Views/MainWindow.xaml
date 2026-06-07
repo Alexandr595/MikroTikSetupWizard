@@ -1258,12 +1258,13 @@
                     Margin="0,0,0,24" />
 
             <Border Grid.Row="1"
+                    DataContext="{Binding DeviceDiscovery}"
                     Background="{DynamicResource PanelBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="18"
                     Padding="28"
-                    MaxWidth="720"
+                    MaxWidth="920"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top">
                 <Border.Effect>
@@ -1277,7 +1278,106 @@
                                Style="{StaticResource TitleTextStyle}" />
                     <TextBlock Text="Диагностика устройства будет добавлена позже."
                                Foreground="{DynamicResource MutedTextBrush}"
-                               FontSize="16" />
+                               FontSize="16"
+                               Margin="0,0,0,24" />
+
+                    <Border Background="{DynamicResource InputBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="14"
+                            Padding="18">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Найти MikroTik в сети"
+                                               Style="{StaticResource SectionTitleStyle}" />
+                                    <TextBlock Text="На первом этапе это безопасная заготовка: приложение ничего не сканирует и не меняет конфигурацию устройств."
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        Content="Найти устройства"
+                                        Command="{Binding FindDevicesCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Margin="18,0,0,0" />
+                            </Grid>
+
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       Margin="0,0,0,14" />
+
+                            <Border Background="{DynamicResource PanelBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="14"
+                                    Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="Найденные устройства"
+                                               FontWeight="SemiBold"
+                                               Margin="0,0,0,10" />
+
+                                    <TextBlock Text="Список устройств появится здесь после добавления MNDP/Neighbor Discovery или IP scan."
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                                    <ItemsControl ItemsSource="{Binding Devices}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10"
+                                                        Padding="12"
+                                                        Margin="0,0,0,10">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding Identity}" FontWeight="SemiBold" />
+                                                            <TextBlock Text="{Binding RouterOsVersion}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding IpAddress}" />
+                                                            <TextBlock Text="{Binding MacAddress}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="{Binding InterfaceName}" />
+                                                            <TextBlock Text="{Binding DiscoveryMethod}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="Рекомендации"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,8" />
+                            <ItemsControl ItemsSource="{Binding Recommendations}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,0,5" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
         </Grid>
