@@ -7,7 +7,7 @@ namespace MikroTikSetupWizard.Infrastructure.Discovery;
 
 public sealed class DeviceReachabilityService : IDeviceReachabilityService
 {
-    private static readonly int[] TcpProbePorts = [8291, 22, 8728];
+    private static readonly int[] TcpProbePorts = [8291, 8728, 22];
     private static readonly TimeSpan TcpProbeTimeout = TimeSpan.FromMilliseconds(700);
     private const int PingTimeoutMilliseconds = 900;
 
@@ -31,7 +31,7 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
 
         if (await IsPingReachableAsync(ipAddress, cancellationToken))
         {
-            notes.Add("ICMP ping отвечает.");
+            notes.Add("IP отвечает на ping. Это не подтверждает, что устройство является MikroTik.");
 
             return device with
             {
@@ -45,17 +45,23 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
 
         if (reachablePort.HasValue)
         {
-            notes.Add($"TCP порт {reachablePort.Value} доступен без авторизации.");
+            var reachabilityStatus = IsMikroTikPort(reachablePort.Value)
+                ? "MikroTik port reachable"
+                : "Generic TCP reachable";
+
+            notes.Add(IsMikroTikPort(reachablePort.Value)
+                ? $"Доступен MikroTik-порт {reachablePort.Value} WinBox/API. Вероятно, это MikroTik, но без авторизации identity/version неизвестны."
+                : "Доступен SSH-порт. Это не доказывает, что устройство MikroTik.");
 
             return device with
             {
                 IsReachableByIp = true,
-                ReachabilityStatus = "TCP reachable",
+                ReachabilityStatus = reachabilityStatus,
                 Notes = notes
             };
         }
 
-        notes.Add("Ping не отвечает, TCP порты 8291/22/8728 недоступны.");
+        notes.Add("IP недоступен. Устройство не найдено по ping/TCP.");
         notes.Add("Возможны firewall, другая VLAN/подсеть или отключенные сервисы.");
 
         return device with
@@ -124,6 +130,11 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
         {
             return false;
         }
+    }
+
+    private static bool IsMikroTikPort(int port)
+    {
+        return port is 8291 or 8728;
     }
 
     private static IReadOnlyList<string> AppendNote(

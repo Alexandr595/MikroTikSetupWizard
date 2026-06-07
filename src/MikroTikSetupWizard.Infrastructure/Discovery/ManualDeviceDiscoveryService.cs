@@ -37,7 +37,7 @@ public sealed class ManualDeviceDiscoveryService : IDeviceManualDiscoveryService
             ReachabilityStatus: "Unknown",
             Notes:
             [
-                "Устройство добавлено вручную по IP.",
+                "IP добавлен вручную для безопасной проверки доступности.",
                 "Identity, MAC и версия RouterOS неизвестны без MNDP или подключения с авторизацией."
             ]);
 

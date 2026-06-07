@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Sockets;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Discovery;
 
@@ -12,12 +11,12 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private IReadOnlyList<string> _recommendations =
     [
         "Ручной ввод IP не сканирует сеть автоматически.",
-        "Без MNDP или подключения с авторизацией identity, MAC и версия RouterOS могут быть неизвестны.",
-        "Ping может быть запрещён firewall, даже если устройство доступно по TCP."
+        "Доступность по ping или TCP не подтверждает identity, MAC и версию RouterOS.",
+        "MikroTik-порты 8291/8728 дают более сильный признак, но точное подтверждение появится только после MNDP или авторизованного подключения."
     ];
     private DeviceDiscoveryResultDto? _selectedDevice;
     private string _manualIpAddress = string.Empty;
-    private string _statusMessage = "Введите IPv4 адрес MikroTik и нажмите \"Добавить по IP\".";
+    private string _statusMessage = "Введите IPv4 адрес и нажмите \"Добавить по IP\".";
 
     public DeviceDiscoveryViewModel(IDeviceManualDiscoveryService manualDiscoveryService)
     {
@@ -81,7 +80,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             return;
         }
 
-        StatusMessage = "Проверяем доступность устройства...";
+        StatusMessage = "Проверяем доступность IP...";
 
         try
         {
@@ -97,7 +96,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
                 .ToArray();
 
             SelectedDevice = device;
-            StatusMessage = $"Устройство {device.IpAddress} добавлено. Статус: {device.ReachabilityStatus}.";
+            StatusMessage = $"IP {device.IpAddress} проверен. Статус: {device.ReachabilityStatus}.";
         }
         catch (Exception exception)
         {
@@ -107,12 +106,12 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 
     private void ShowDiscoveryPlaceholder()
     {
-        StatusMessage = "Автоматическое обнаружение MNDP/IP scan будет добавлено позже. Сейчас доступен ручной ввод IP.";
+        StatusMessage = "Автоматическое обнаружение MNDP/IP scan будет добавлено позже. Сейчас доступен только ручной ввод IP.";
     }
 
     private static bool IsValidIpv4(string value)
     {
         return IPAddress.TryParse(value.Trim(), out var address)
-            && address.AddressFamily == AddressFamily.InterNetwork;
+            && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
     }
 }
