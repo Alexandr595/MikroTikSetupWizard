@@ -1,4 +1,6 @@
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Setup;
 using MikroTikSetupWizard.Desktop.Dialogs;
@@ -180,7 +182,23 @@ public sealed class AccessPointWizardViewModel : ObservableObject
         ? "Не указано"
         : Input.BridgeName.Trim();
 
-    public string SummaryDhcpClient => Input.EnableDhcpClient ? "включён" : "выключен";
+    public bool IsStaticManagementIpVisible => !Input.UseDhcpClient;
+
+    public string SummaryAddressMode => Input.UseDhcpClient
+        ? "DHCP Client"
+        : "Static IP";
+
+    public string SummaryManagementIp => Input.UseDhcpClient
+        ? "получается автоматически"
+        : $"{Input.ManagementIpAddress.Trim()}/{Input.ManagementPrefixLength}";
+
+    public string SummaryGateway => Input.UseDhcpClient
+        ? "получается автоматически"
+        : Input.DefaultGateway.Trim();
+
+    public string SummaryDns => Input.UseDhcpClient
+        ? "получается автоматически"
+        : Input.DnsServers.Trim();
 
     public string SummarySsid => string.IsNullOrWhiteSpace(Input.Ssid)
         ? "не указан"
@@ -326,19 +344,50 @@ public sealed class AccessPointWizardViewModel : ObservableObject
             errors.Add("Пароль Wi-Fi должен быть не короче 8 символов.");
         }
 
+        if (!Input.UseDhcpClient)
+        {
+            if (!IsValidIpv4(Input.ManagementIpAddress))
+            {
+                errors.Add("IP адрес управления должен быть корректным IPv4-адресом.");
+            }
+
+            if (Input.ManagementPrefixLength is < 1 or > 32)
+            {
+                errors.Add("CIDR должен быть в диапазоне 1-32.");
+            }
+
+            if (!IsValidIpv4(Input.DefaultGateway))
+            {
+                errors.Add("Шлюз должен быть корректным IPv4-адресом.");
+            }
+
+            if (GetDnsServers().Count == 0)
+            {
+                errors.Add("DNS серверы должны быть указаны.");
+            }
+        }
+
         return errors;
     }
 
     private IReadOnlyList<string> BuildValidationWarnings()
     {
-        var warnings = new List<string>();
+        return [];
+    }
 
-        if (!Input.EnableDhcpClient)
-        {
-            warnings.Add("DHCP client выключен. Устройство не получит IP-адрес автоматически.");
-        }
+    private IReadOnlyList<string> GetDnsServers()
+    {
+        return Input.DnsServers
+            .Split(
+                new[] { ',', ';', ' ', '\r', '\n', '\t' },
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToArray();
+    }
 
-        return warnings;
+    private static bool IsValidIpv4(string value)
+    {
+        return IPAddress.TryParse(value.Trim(), out var address)
+            && address.AddressFamily == AddressFamily.InterNetwork;
     }
 
     private void RefreshNavigationState()
@@ -381,7 +430,11 @@ public sealed class AccessPointWizardViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SummaryDeviceName));
         OnPropertyChanged(nameof(SummaryBridgeName));
-        OnPropertyChanged(nameof(SummaryDhcpClient));
+        OnPropertyChanged(nameof(IsStaticManagementIpVisible));
+        OnPropertyChanged(nameof(SummaryAddressMode));
+        OnPropertyChanged(nameof(SummaryManagementIp));
+        OnPropertyChanged(nameof(SummaryGateway));
+        OnPropertyChanged(nameof(SummaryDns));
         OnPropertyChanged(nameof(SummarySsid));
         OnPropertyChanged(nameof(SummaryWifiPassword));
     }

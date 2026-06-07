@@ -985,12 +985,38 @@
                                             <TextBlock Text="Сеть"
                                                        Style="{StaticResource SectionTitleStyle}"
                                                        Margin="0,0,0,10" />
-                                            <CheckBox Content="Получать IP через DHCP client на bridge"
-                                                      IsChecked="{Binding Input.EnableDhcpClient}" />
-                                            <TextBlock Text="Если выключить DHCP client, точка доступа не получит IP автоматически."
+                                            <TextBlock Text="Способ получения IP"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <RadioButton Content="DHCP Client"
+                                                         GroupName="AccessPointIpMode"
+                                                         IsChecked="{Binding Input.UseDhcpClient}" />
+                                            <RadioButton Content="Статический IP"
+                                                         GroupName="AccessPointIpMode"
+                                                         IsChecked="{Binding Input.UseStaticManagementIp}" />
+                                            <TextBlock Text="В режиме DHCP точка доступа получит адрес из существующей сети."
                                                        Foreground="{DynamicResource MutedTextBrush}"
                                                        FontSize="12"
                                                        Margin="0,8,0,0" />
+
+                                            <StackPanel Margin="0,14,0,0"
+                                                        Visibility="{Binding Input.UseStaticManagementIp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="IP адрес управления"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <TextBox Text="{Binding Input.ManagementIpAddress, UpdateSourceTrigger=PropertyChanged}" />
+
+                                                <TextBlock Text="CIDR"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <ComboBox ItemsSource="{Binding Input.PrefixLengths}"
+                                                          SelectedItem="{Binding Input.ManagementPrefixLength}" />
+
+                                                <TextBlock Text="Шлюз"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <TextBox Text="{Binding Input.DefaultGateway, UpdateSourceTrigger=PropertyChanged}" />
+
+                                                <TextBlock Text="DNS серверы"
+                                                           Style="{StaticResource FieldLabelStyle}" />
+                                                <TextBox Text="{Binding Input.DnsServers, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
 
@@ -1046,8 +1072,23 @@
                                                             <TextBlock Text="{Binding SummaryBridgeName}" FontWeight="SemiBold" />
                                                         </StackPanel>
                                                         <StackPanel Margin="0,0,24,12">
-                                                            <TextBlock Text="DHCP client:" Foreground="{DynamicResource MutedTextBrush}" />
-                                                            <TextBlock Text="{Binding SummaryDhcpClient}" FontWeight="SemiBold" />
+                                                            <TextBlock Text="Тип адресации:" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            <TextBlock Text="{Binding SummaryAddressMode}" FontWeight="SemiBold" />
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,24,12"
+                                                                    Visibility="{Binding Input.UseStaticManagementIp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <TextBlock Text="IP:" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            <TextBlock Text="{Binding SummaryManagementIp}" FontWeight="SemiBold" />
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,24,12"
+                                                                    Visibility="{Binding Input.UseStaticManagementIp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <TextBlock Text="Шлюз:" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            <TextBlock Text="{Binding SummaryGateway}" FontWeight="SemiBold" />
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,24,12"
+                                                                    Visibility="{Binding Input.UseStaticManagementIp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <TextBlock Text="DNS:" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            <TextBlock Text="{Binding SummaryDns}" FontWeight="SemiBold" />
                                                         </StackPanel>
                                                         <StackPanel Margin="0,0,24,12">
                                                             <TextBlock Text="LAN-порты:" Foreground="{DynamicResource MutedTextBrush}" />

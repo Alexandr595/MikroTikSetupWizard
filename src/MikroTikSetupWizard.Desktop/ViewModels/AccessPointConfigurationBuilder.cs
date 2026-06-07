@@ -21,10 +21,17 @@ public sealed class AccessPointConfigurationBuilder
         script.AppendLine($"    /interface bridge port add bridge=\"{bridgeName}\" interface=$interfaceName comment=\"MikroTik Setup Wizard\"");
         script.AppendLine("}");
 
-        if (input.EnableDhcpClient)
+        if (input.UseDhcpClient)
         {
             script.AppendLine();
             script.AppendLine($"/ip dhcp-client add interface=\"{bridgeName}\" disabled=no comment=\"MikroTik Setup Wizard\"");
+        }
+        else
+        {
+            script.AppendLine();
+            script.AppendLine($"/ip address add address={input.ManagementIpAddress.Trim()}/{input.ManagementPrefixLength} interface=\"{bridgeName}\" comment=\"MikroTik Setup Wizard\"");
+            script.AppendLine($"/ip route add dst-address=0.0.0.0/0 gateway={input.DefaultGateway.Trim()} comment=\"MikroTik Setup Wizard\"");
+            script.AppendLine($"/ip dns set servers={NormalizeDnsServers(input.DnsServers)}");
         }
 
         if (!string.IsNullOrWhiteSpace(input.Ssid))
@@ -54,5 +61,14 @@ public sealed class AccessPointConfigurationBuilder
         return value
             .Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("\"", "\\\"", StringComparison.Ordinal);
+    }
+
+    private static string NormalizeDnsServers(string value)
+    {
+        return string.Join(
+            ",",
+            value.Split(
+                new[] { ',', ';', ' ', '\r', '\n', '\t' },
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 }
