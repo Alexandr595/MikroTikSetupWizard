@@ -9,4 +9,5 @@ public sealed record DeviceDiscoveryResultDto(
     string DiscoveryMethod,
     bool IsReachableByIp,
     bool IsReachableByMac,
+    string ReachabilityStatus,
     IReadOnlyList<string> Notes);

@@ -9,5 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MikroTikSetupWizard.Application\MikroTikSetupWizard.Application.csproj" />
+    <ProjectReference Include="..\MikroTikSetupWizard.Infrastructure\MikroTikSetupWizard.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

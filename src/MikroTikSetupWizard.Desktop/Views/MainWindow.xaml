@@ -1296,7 +1296,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Найти MikroTik в сети"
                                                Style="{StaticResource SectionTitleStyle}" />
-                                    <TextBlock Text="На первом этапе это безопасная заготовка: приложение ничего не сканирует и не меняет конфигурацию устройств."
+                                    <TextBlock Text="Ручной ввод IP выполняет только read-only проверку доступности: ping и TCP probe портов 8291/22/8728 без авторизации."
                                                Foreground="{DynamicResource MutedTextBrush}"
                                                TextWrapping="Wrap" />
                                 </StackPanel>
@@ -1306,6 +1306,26 @@
                                         Command="{Binding FindDevicesCommand}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Margin="18,0,0,0" />
+                            </Grid>
+
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="IP адрес"
+                                               Style="{StaticResource FieldLabelStyle}" />
+                                    <TextBox Text="{Binding ManualIpAddress, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        Content="Добавить по IP"
+                                        Command="{Binding AddManualDeviceCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Margin="14,24,0,0"
+                                        VerticalAlignment="Top" />
                             </Grid>
 
                             <TextBlock Text="{Binding StatusMessage}"
@@ -1323,7 +1343,7 @@
                                                FontWeight="SemiBold"
                                                Margin="0,0,0,10" />
 
-                                    <TextBlock Text="Список устройств появится здесь после добавления MNDP/Neighbor Discovery или IP scan."
+                                    <TextBlock Text="Добавленные вручную устройства появятся здесь."
                                                Foreground="{DynamicResource MutedTextBrush}"
                                                Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
@@ -1336,26 +1356,40 @@
                                                         CornerRadius="10"
                                                         Padding="12"
                                                         Margin="0,0,0,10">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
 
-                                                        <StackPanel Grid.Column="0">
-                                                            <TextBlock Text="{Binding Identity}" FontWeight="SemiBold" />
-                                                            <TextBlock Text="{Binding RouterOsVersion}" Foreground="{DynamicResource MutedTextBrush}" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="{Binding IpAddress}" />
-                                                            <TextBlock Text="{Binding MacAddress}" Foreground="{DynamicResource MutedTextBrush}" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="{Binding InterfaceName}" />
-                                                            <TextBlock Text="{Binding DiscoveryMethod}" Foreground="{DynamicResource MutedTextBrush}" />
-                                                        </StackPanel>
-                                                    </Grid>
+                                                            <StackPanel Grid.Column="0">
+                                                                <TextBlock Text="{Binding IpAddress}" FontWeight="SemiBold" />
+                                                                <TextBlock Text="{Binding DiscoveryMethod}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="{Binding ReachabilityStatus}" FontWeight="SemiBold" />
+                                                                <TextBlock Text="{Binding InterfaceName}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2">
+                                                                <TextBlock Text="{Binding Identity}" />
+                                                                <TextBlock Text="{Binding RouterOsVersion}" Foreground="{DynamicResource MutedTextBrush}" />
+                                                            </StackPanel>
+                                                        </Grid>
+
+                                                        <ItemsControl ItemsSource="{Binding Notes}"
+                                                                      Margin="0,10,0,0">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding}"
+                                                                               Foreground="{DynamicResource MutedTextBrush}"
+                                                                               TextWrapping="Wrap"
+                                                                               Margin="0,0,0,4" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Sockets;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Discovery;
 
@@ -5,22 +7,34 @@ namespace MikroTikSetupWizard.Desktop.ViewModels;
 
 public sealed class DeviceDiscoveryViewModel : ObservableObject
 {
+    private readonly IDeviceManualDiscoveryService _manualDiscoveryService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
     private IReadOnlyList<string> _recommendations =
     [
-        "Обнаружение устройств будет добавлено на следующем этапе.",
-        "Если устройство не найдено, проверьте VLAN, подсеть, кабель, PoE, порт и свитч.",
-        "Neighbor Discovery или MAC Server могут быть отключены на MikroTik."
+        "Ручной ввод IP не сканирует сеть автоматически.",
+        "Без MNDP или подключения с авторизацией identity, MAC и версия RouterOS могут быть неизвестны.",
+        "Ping может быть запрещён firewall, даже если устройство доступно по TCP."
     ];
     private DeviceDiscoveryResultDto? _selectedDevice;
-    private string _statusMessage = "Обнаружение устройств будет добавлено на следующем этапе.";
+    private string _manualIpAddress = string.Empty;
+    private string _statusMessage = "Введите IPv4 адрес MikroTik и нажмите \"Добавить по IP\".";
 
-    public DeviceDiscoveryViewModel()
+    public DeviceDiscoveryViewModel(IDeviceManualDiscoveryService manualDiscoveryService)
     {
+        _manualDiscoveryService = manualDiscoveryService;
         FindDevicesCommand = new RelayCommand(_ => ShowDiscoveryPlaceholder());
+        AddManualDeviceCommand = new RelayCommand(async _ => await AddManualDeviceAsync());
     }
 
     public ICommand FindDevicesCommand { get; }
+
+    public ICommand AddManualDeviceCommand { get; }
+
+    public string ManualIpAddress
+    {
+        get => _manualIpAddress;
+        set => SetProperty(ref _manualIpAddress, value);
+    }
 
     public IReadOnlyList<DeviceDiscoveryResultDto> Devices
     {
@@ -57,10 +71,48 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         private set => SetProperty(ref _statusMessage, value);
     }
 
+    private async Task AddManualDeviceAsync()
+    {
+        var ipAddress = ManualIpAddress.Trim();
+
+        if (!IsValidIpv4(ipAddress))
+        {
+            StatusMessage = "Укажите корректный IPv4 адрес.";
+            return;
+        }
+
+        StatusMessage = "Проверяем доступность устройства...";
+
+        try
+        {
+            var device = await _manualDiscoveryService.DiscoverAsync(
+                new ManualDeviceDiscoveryRequestDto(ipAddress));
+
+            Devices = Devices
+                .Where(existingDevice => !string.Equals(
+                    existingDevice.IpAddress,
+                    device.IpAddress,
+                    StringComparison.OrdinalIgnoreCase))
+                .Append(device)
+                .ToArray();
+
+            SelectedDevice = device;
+            StatusMessage = $"Устройство {device.IpAddress} добавлено. Статус: {device.ReachabilityStatus}.";
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
     private void ShowDiscoveryPlaceholder()
     {
-        Devices = [];
-        SelectedDevice = null;
-        StatusMessage = "Обнаружение устройств будет добавлено на следующем этапе.";
+        StatusMessage = "Автоматическое обнаружение MNDP/IP scan будет добавлено позже. Сейчас доступен ручной ввод IP.";
+    }
+
+    private static bool IsValidIpv4(string value)
+    {
+        return IPAddress.TryParse(value.Trim(), out var address)
+            && address.AddressFamily == AddressFamily.InterNetwork;
     }
 }

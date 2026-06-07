@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using MikroTikSetupWizard.Application.Discovery;
 using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
 using MikroTikSetupWizard.Application.SetupTasks;
@@ -51,7 +52,8 @@ public sealed class WizardViewModel : ObservableObject
         IMikroTikSetupWizardService setupWizardService,
         ISaveFileDialogService saveFileDialogService,
         IModuleNavigationService moduleNavigationService,
-        ISetupTaskCatalogService setupTaskCatalogService)
+        ISetupTaskCatalogService setupTaskCatalogService,
+        IDeviceManualDiscoveryService manualDiscoveryService)
     {
         _setupWizardService = setupWizardService;
         _saveFileDialogService = saveFileDialogService;
@@ -62,7 +64,7 @@ public sealed class WizardViewModel : ObservableObject
             new AccessPointConfigurationBuilder(),
             _setupWizardService,
             _saveFileDialogService);
-        DeviceDiscovery = new DeviceDiscoveryViewModel();
+        DeviceDiscovery = new DeviceDiscoveryViewModel(manualDiscoveryService);
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
