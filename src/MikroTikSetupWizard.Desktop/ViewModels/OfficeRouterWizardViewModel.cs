@@ -85,7 +85,8 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
 
     public bool CanGoBack => CurrentStepIndex > 0;
 
-    public bool CanGoNext => CurrentStepIndex < Steps.Count - 1;
+    public bool CanGoNext => CurrentStepIndex < Steps.Count - 1
+        && (!IsReviewStepVisible || HasGeneratedPreview);
 
     public bool IsFirstStep => CurrentStepIndex == 0;
 
@@ -101,6 +102,17 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
 
     public bool IsResultStepVisible => CurrentStep.Id == "result";
 
+    public bool HasGeneratedPreview => !string.IsNullOrWhiteSpace(GeneratedRsc);
+
+    public bool IsGenerateActionVisible => IsReviewStepVisible;
+
+    public bool IsNextActionVisible => !IsLastStep
+        && (!IsReviewStepVisible || HasGeneratedPreview);
+
+    public bool IsSaveActionVisible => IsResultStepVisible;
+
+    public bool IsReturnToTaskSelectionActionVisible => IsResultStepVisible;
+
     public string GeneratedRsc
     {
         get => _generatedRsc;
@@ -109,6 +121,9 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
             if (SetProperty(ref _generatedRsc, value))
             {
                 _saveFileCommand.RaiseCanExecuteChanged();
+                RefreshNavigationState();
+                OnPropertyChanged(nameof(HasGeneratedPreview));
+                OnPropertyChanged(nameof(IsNextActionVisible));
             }
         }
     }
@@ -283,5 +298,9 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSecurityStepVisible));
         OnPropertyChanged(nameof(IsReviewStepVisible));
         OnPropertyChanged(nameof(IsResultStepVisible));
+        OnPropertyChanged(nameof(IsGenerateActionVisible));
+        OnPropertyChanged(nameof(IsNextActionVisible));
+        OnPropertyChanged(nameof(IsSaveActionVisible));
+        OnPropertyChanged(nameof(IsReturnToTaskSelectionActionVisible));
     }
 }

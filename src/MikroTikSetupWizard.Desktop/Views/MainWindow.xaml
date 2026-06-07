@@ -628,11 +628,6 @@
                                                 </StackPanel>
                                             </Border>
 
-                                            <Button Content="Сгенерировать"
-                                                    Command="{Binding GeneratePreviewCommand}"
-                                                    HorizontalAlignment="Left"
-                                                    Margin="0,0,0,18" />
-
                                             <TextBlock Text="Будет создано"
                                                        Style="{StaticResource FieldLabelStyle}" />
 
@@ -720,14 +715,6 @@
                                                 <TextBlock Text="Проверьте итоговый .rsc и сохраните файл."
                                                            Foreground="{DynamicResource MutedTextBrush}" />
 
-                                                <StackPanel Orientation="Horizontal"
-                                                            Margin="0,4,0,0">
-                                                    <Button Content="Сгенерировать"
-                                                            Command="{Binding GeneratePreviewCommand}" />
-                                                    <Button Content="Сохранить .rsc"
-                                                            Command="{Binding SaveFileCommand}"
-                                                            Style="{StaticResource SecondaryButtonStyle}" />
-                                                </StackPanel>
                                             </StackPanel>
 
                                             <TextBox Grid.Row="1"
@@ -763,11 +750,19 @@
                         <Button Content="Назад"
                                 Command="{Binding BackCommand}"
                                 Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Сгенерировать"
+                                Command="{Binding GeneratePreviewCommand}"
+                                Visibility="{Binding IsGenerateActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Button Content="Далее"
-                                Command="{Binding NextCommand}" />
-                        <Button Content="Завершить"
-                                IsEnabled="False"
-                                Style="{StaticResource SecondaryButtonStyle}" />
+                                Command="{Binding NextCommand}"
+                                Visibility="{Binding IsNextActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <Button Content="Сохранить .rsc"
+                                Command="{Binding SaveFileCommand}"
+                                Visibility="{Binding IsSaveActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <Button Content="Вернуться к выбору задач"
+                                Command="{Binding DataContext.ShowConfigureDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Visibility="{Binding IsReturnToTaskSelectionActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Grid>
             </Grid>
