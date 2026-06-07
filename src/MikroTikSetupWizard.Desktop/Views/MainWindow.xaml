@@ -314,6 +314,432 @@
             </ScrollViewer>
         </Grid>
 
+        <Grid Visibility="{Binding IsOfficeRouterWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid DataContext="{Binding OfficeRouterWizard}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0"
+                      Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Content="Назад к выбору задач"
+                            Command="{Binding DataContext.ShowConfigureDeviceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="0,0,18,0" />
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Офисный роутер"
+                                   Style="{StaticResource TitleTextStyle}" />
+                        <TextBlock Text="Пошаговый мастер настройки без лишних технических деталей. Генерация .rsc будет подключена на следующем этапе."
+                                   Foreground="{DynamicResource MutedTextBrush}" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource PanelBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="22"
+                            Margin="0,0,20,0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="24"
+                                              ShadowDepth="0"
+                                              Opacity="0.18"
+                                              Color="#000000" />
+                        </Border.Effect>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0"
+                                        Margin="0,0,0,16">
+                                <TextBlock Text="Шаги мастера"
+                                           Style="{StaticResource SectionTitleStyle}"
+                                           Margin="0,0,0,6" />
+                                <TextBlock Text="Заполните только параметры, которые нужны для выбранной задачи."
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           FontSize="12" />
+                            </StackPanel>
+
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding Steps}"
+                                              Margin="0,0,10,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="12"
+                                                    Padding="13"
+                                                    Margin="0,0,0,10">
+                                                <Border.Style>
+                                                    <Style TargetType="{x:Type Border}">
+                                                        <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                                        <Setter Property="BorderThickness" Value="1" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                                <Setter Property="Background" Value="#172334" />
+                                                                <Setter Property="BorderBrush" Value="#274461" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                <Setter Property="Background" Value="#1B2A3F" />
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HasIssues}" Value="True">
+                                                                <Setter Property="BorderBrush" Value="#C8962F" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border Width="24"
+                                                            Height="24"
+                                                            CornerRadius="12"
+                                                            Margin="0,1,12,0">
+                                                        <Border.Style>
+                                                            <Style TargetType="{x:Type Border}">
+                                                                <Setter Property="Background" Value="{DynamicResource BorderBrush}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="✓"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   FontSize="12"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#FFFFFF" />
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding Description}"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12"
+                                                                   Margin="0,4,0,0" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="{DynamicResource PanelBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="28">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="24"
+                                              ShadowDepth="0"
+                                              Opacity="0.18"
+                                              Color="#000000" />
+                        </Border.Effect>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0"
+                                        Margin="0,0,0,20">
+                                <TextBlock Text="{Binding CurrentStep.Title}"
+                                           Style="{StaticResource TitleTextStyle}" />
+                                <TextBlock Text="{Binding CurrentStep.Description}"
+                                           Foreground="{DynamicResource MutedTextBrush}" />
+                            </StackPanel>
+
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto">
+                                <Grid Margin="0,0,16,0">
+                                    <Border Visibility="{Binding IsInternetStepVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel MaxWidth="680"
+                                                    HorizontalAlignment="Left">
+                                            <TextBlock Text="Интернет"
+                                                       Style="{StaticResource SectionTitleStyle}"
+                                                       Margin="0,0,0,10" />
+
+                                            <TextBlock Text="WAN interface"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBox Text="{Binding Input.WanInterface, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Тип подключения"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <ComboBox ItemsSource="{Binding Input.InternetConnectionTypes}"
+                                                      SelectedItem="{Binding Input.InternetConnectionType}" />
+                                            <TextBlock Text="Static IP и PPPoE пока показаны как будущие варианты и не меняют генерацию."
+                                                       Foreground="{DynamicResource MutedTextBrush}"
+                                                       FontSize="12"
+                                                       Margin="0,-2,0,10" />
+
+                                            <TextBlock Text="DNS servers"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBox Text="{Binding Input.DnsServers, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Visibility="{Binding IsLocalNetworkStepVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel MaxWidth="680"
+                                                    HorizontalAlignment="Left">
+                                            <TextBlock Text="Локальная сеть"
+                                                       Style="{StaticResource SectionTitleStyle}"
+                                                       Margin="0,0,0,10" />
+
+                                            <TextBlock Text="LAN bridge name"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBox Text="{Binding Input.LanBridgeName, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="140" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0"
+                                                            Margin="0,0,12,0">
+                                                    <TextBlock Text="LAN gateway IP"
+                                                               Style="{StaticResource FieldLabelStyle}" />
+                                                    <TextBox Text="{Binding Input.LanAddress, UpdateSourceTrigger=PropertyChanged}" />
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="CIDR"
+                                                               Style="{StaticResource FieldLabelStyle}" />
+                                                    <ComboBox ItemsSource="{Binding Input.PrefixLengths}"
+                                                              SelectedItem="{Binding Input.LanPrefixLength}" />
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <CheckBox Content="Включить DHCP"
+                                                      IsChecked="{Binding Input.DhcpEnabled}" />
+
+                                            <Grid Margin="0,6,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0"
+                                                            Margin="0,0,12,0">
+                                                    <TextBlock Text="DHCP range start"
+                                                               Style="{StaticResource FieldLabelStyle}" />
+                                                    <TextBox Text="{Binding Input.DhcpPoolStart, UpdateSourceTrigger=PropertyChanged}" />
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="DHCP range end"
+                                                               Style="{StaticResource FieldLabelStyle}" />
+                                                    <TextBox Text="{Binding Input.DhcpPoolEnd, UpdateSourceTrigger=PropertyChanged}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Visibility="{Binding IsSecurityStepVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel MaxWidth="680"
+                                                    HorizontalAlignment="Left">
+                                            <TextBlock Text="Безопасность"
+                                                       Style="{StaticResource SectionTitleStyle}"
+                                                       Margin="0,0,0,10" />
+
+                                            <TextBlock Text="Admin username"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBox Text="{Binding Input.AdminUserName, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Admin password"
+                                                       Style="{StaticResource FieldLabelStyle}" />
+                                            <PasswordBox x:Name="OfficeAdminPasswordBox"
+                                                         PasswordChanged="OfficeAdminPasswordBox_OnPasswordChanged" />
+
+                                            <Border Background="#3A2F12"
+                                                    BorderBrush="#C8962F"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10"
+                                                    Padding="12"
+                                                    Margin="0,6,0,4"
+                                                    Visibility="{Binding Input.HasEmptyAdminPasswordWarning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="Пароль администратора пустой. Это допустимо для макета, но в рабочем мастере будет предупреждением."
+                                                           Foreground="#F1C66A" />
+                                            </Border>
+
+                                            <CheckBox Content="Включить NAT masquerade"
+                                                      IsChecked="{Binding Input.EnableNat}" />
+                                            <CheckBox Content="Включить базовый firewall"
+                                                      IsChecked="{Binding Input.EnableBasicFirewall}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Visibility="{Binding IsReviewStepVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <StackPanel MaxWidth="760"
+                                                    HorizontalAlignment="Left">
+                                            <TextBlock Text="Проверка"
+                                                       Style="{StaticResource SectionTitleStyle}"
+                                                       Margin="0,0,0,10" />
+                                            <TextBlock Text="На этом этапе мастер покажет ошибки, предупреждения и итоговый список объектов RouterOS."
+                                                       Foreground="{DynamicResource MutedTextBrush}"
+                                                       Margin="0,0,0,18" />
+
+                                            <UniformGrid Columns="2">
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="identity" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="interface lists" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="bridge" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="IP address" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="DHCP pool/server" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="DNS" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="NAT" />
+                                                </Border>
+                                                <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="12"
+                                                        Padding="14"
+                                                        Margin="0,0,12,12">
+                                                    <TextBlock Text="firewall" />
+                                                </Border>
+                                            </UniformGrid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Visibility="{Binding IsResultStepVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel Grid.Row="0"
+                                                        Margin="0,0,0,16">
+                                                <TextBlock Text="Результат"
+                                                           Style="{StaticResource SectionTitleStyle}"
+                                                           Margin="0,0,0,10" />
+                                                <TextBlock Text=".rsc preview и сохранение файла будут подключены после визуального этапа wizard."
+                                                           Foreground="{DynamicResource MutedTextBrush}" />
+                                            </StackPanel>
+
+                                            <TextBox Grid.Row="1"
+                                                     Text="Предпросмотр .rsc пока остаётся в старом MVP-экране: Расширенный режим → Сгенерировать."
+                                                     FontFamily="Consolas"
+                                                     FontSize="13"
+                                                     MinHeight="260"
+                                                     AcceptsReturn="True"
+                                                     IsReadOnly="True"
+                                                     VerticalScrollBarVisibility="Auto" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="2"
+                      Margin="0,18,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Визуальный каркас мастера: генерация .rsc не подключена в этом этапе."
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               VerticalAlignment="Center" />
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal">
+                        <Button Content="Назад"
+                                Command="{Binding BackCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Content="Далее"
+                                Command="{Binding NextCommand}" />
+                        <Button Content="Завершить"
+                                IsEnabled="False"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+
         <Grid Visibility="{Binding IsDiagnosticsScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

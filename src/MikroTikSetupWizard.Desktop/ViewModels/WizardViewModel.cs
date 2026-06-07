@@ -17,6 +17,7 @@ public sealed class WizardViewModel : ObservableObject
 
     private bool _isHomeScreenVisible = true;
     private bool _isConfigureDeviceScreenVisible;
+    private bool _isOfficeRouterWizardVisible;
     private bool _isDiagnosticsScreenVisible;
     private bool _isWorkspaceVisible;
     private bool _isAdvancedModeActive;
@@ -112,6 +113,8 @@ public sealed class WizardViewModel : ObservableObject
 
     public ICommand OpenSetupTaskCommand { get; }
 
+    public OfficeRouterWizardViewModel OfficeRouterWizard { get; } = new();
+
     public IReadOnlyList<SetupTaskItemDto> SetupTasks
     {
         get => _setupTasks;
@@ -128,6 +131,12 @@ public sealed class WizardViewModel : ObservableObject
     {
         get => _isConfigureDeviceScreenVisible;
         private set => SetProperty(ref _isConfigureDeviceScreenVisible, value);
+    }
+
+    public bool IsOfficeRouterWizardVisible
+    {
+        get => _isOfficeRouterWizardVisible;
+        private set => SetProperty(ref _isOfficeRouterWizardVisible, value);
     }
 
     public bool IsDiagnosticsScreenVisible
@@ -346,22 +355,19 @@ public sealed class WizardViewModel : ObservableObject
             return;
         }
 
-        IsAdvancedModeActive = false;
-        ModuleNavigationColumnWidth = new GridLength(0);
-        ConfigurationPanelMargin = new Thickness(0);
-        WorkspaceTitle = task.Name;
-        WorkspaceDescription = "Текущий MVP-сценарий: базовая сеть, валидация, предпросмотр и сохранение .rsc.";
-        ShowScreen(workspace: true);
+        ShowScreen(officeRouterWizard: true);
     }
 
     private void ShowScreen(
         bool home = false,
         bool configureDevice = false,
+        bool officeRouterWizard = false,
         bool diagnostics = false,
         bool workspace = false)
     {
         IsHomeScreenVisible = home;
         IsConfigureDeviceScreenVisible = configureDevice;
+        IsOfficeRouterWizardVisible = officeRouterWizard;
         IsDiagnosticsScreenVisible = diagnostics;
         IsWorkspaceVisible = workspace;
     }

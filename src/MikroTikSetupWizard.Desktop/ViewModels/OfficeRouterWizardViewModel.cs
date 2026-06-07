@@ -58,11 +58,7 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
             {
                 RefreshStepState();
                 RefreshNavigationState();
-                OnPropertyChanged(nameof(CurrentStep));
-                OnPropertyChanged(nameof(CanGoBack));
-                OnPropertyChanged(nameof(CanGoNext));
-                OnPropertyChanged(nameof(IsFirstStep));
-                OnPropertyChanged(nameof(IsLastStep));
+                NotifyCurrentStepChanged();
             }
         }
     }
@@ -76,6 +72,16 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
     public bool IsFirstStep => CurrentStepIndex == 0;
 
     public bool IsLastStep => CurrentStepIndex == Steps.Count - 1;
+
+    public bool IsInternetStepVisible => CurrentStep.Id == "internet";
+
+    public bool IsLocalNetworkStepVisible => CurrentStep.Id == "local-network";
+
+    public bool IsSecurityStepVisible => CurrentStep.Id == "security";
+
+    public bool IsReviewStepVisible => CurrentStep.Id == "review";
+
+    public bool IsResultStepVisible => CurrentStep.Id == "result";
 
     public BasicSetupInputDto BuildBasicSetupInput()
     {
@@ -127,5 +133,19 @@ public sealed class OfficeRouterWizardViewModel : ObservableObject
     {
         _backCommand.RaiseCanExecuteChanged();
         _nextCommand.RaiseCanExecuteChanged();
+    }
+
+    private void NotifyCurrentStepChanged()
+    {
+        OnPropertyChanged(nameof(CurrentStep));
+        OnPropertyChanged(nameof(CanGoBack));
+        OnPropertyChanged(nameof(CanGoNext));
+        OnPropertyChanged(nameof(IsFirstStep));
+        OnPropertyChanged(nameof(IsLastStep));
+        OnPropertyChanged(nameof(IsInternetStepVisible));
+        OnPropertyChanged(nameof(IsLocalNetworkStepVisible));
+        OnPropertyChanged(nameof(IsSecurityStepVisible));
+        OnPropertyChanged(nameof(IsReviewStepVisible));
+        OnPropertyChanged(nameof(IsResultStepVisible));
     }
 }

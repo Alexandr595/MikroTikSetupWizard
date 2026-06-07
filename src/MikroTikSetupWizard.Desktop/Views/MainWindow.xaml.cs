@@ -19,6 +19,14 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OfficeAdminPasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is WizardViewModel viewModel)
+        {
+            viewModel.OfficeRouterWizard.Input.AdminPassword = OfficeAdminPasswordBox.Password;
+        }
+    }
+
     private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2)
