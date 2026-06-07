@@ -1,7 +1,9 @@
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
+using MikroTikSetupWizard.Application.SetupTasks;
 using MikroTikSetupWizard.Desktop.Dialogs;
 
 namespace MikroTikSetupWizard.Desktop.ViewModels;
@@ -11,7 +13,18 @@ public sealed class WizardViewModel : ObservableObject
     private readonly IMikroTikSetupWizardService _setupWizardService;
     private readonly ISaveFileDialogService _saveFileDialogService;
     private readonly IModuleNavigationService _moduleNavigationService;
+    private readonly ISetupTaskCatalogService _setupTaskCatalogService;
 
+    private bool _isHomeScreenVisible = true;
+    private bool _isConfigureDeviceScreenVisible;
+    private bool _isDiagnosticsScreenVisible;
+    private bool _isWorkspaceVisible;
+    private bool _isAdvancedModeActive;
+    private GridLength _moduleNavigationColumnWidth = new(0);
+    private Thickness _configurationPanelMargin = new(0);
+    private string _workspaceTitle = "Офисный роутер";
+    private string _workspaceDescription = "Текущий MVP-сценарий: базовая сеть и предпросмотр .rsc.";
+    private IReadOnlyList<SetupTaskItemDto> _setupTasks = [];
     private string _routerName = "MikroTik-Office";
     private string _selectedRouterOsVersion = "RouterOS 7";
     private IReadOnlyList<DeviceRoleOptionDto> _deviceRoles = [];
@@ -35,16 +48,24 @@ public sealed class WizardViewModel : ObservableObject
     public WizardViewModel(
         IMikroTikSetupWizardService setupWizardService,
         ISaveFileDialogService saveFileDialogService,
-        IModuleNavigationService moduleNavigationService)
+        IModuleNavigationService moduleNavigationService,
+        ISetupTaskCatalogService setupTaskCatalogService)
     {
         _setupWizardService = setupWizardService;
         _saveFileDialogService = saveFileDialogService;
         _moduleNavigationService = moduleNavigationService;
+        _setupTaskCatalogService = setupTaskCatalogService;
 
+        ShowHomeCommand = new RelayCommand(_ => ShowHome());
+        ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
+        ShowDiagnosticsCommand = new RelayCommand(_ => ShowDiagnostics());
+        ShowAdvancedModeCommand = new RelayCommand(_ => ShowAdvancedMode());
+        OpenSetupTaskCommand = new RelayCommand(OpenSetupTask);
         ApplySmallOfficeProfileCommand = new RelayCommand(_ => ApplySmallOfficeProfile());
         GeneratePreviewCommand = new RelayCommand(_ => GeneratePreview());
         SaveFileCommand = new RelayCommand(async _ => await SaveFileAsync());
 
+        SetupTasks = _setupTaskCatalogService.GetTasks().ToArray();
         DeviceRoles = _moduleNavigationService.GetDeviceRoles().ToArray();
         SelectedDeviceRole = DeviceRoles.FirstOrDefault();
         RefreshModuleNavigation();
@@ -80,6 +101,76 @@ public sealed class WizardViewModel : ObservableObject
     public ICommand SaveFileCommand { get; }
 
     public ICommand ApplySmallOfficeProfileCommand { get; }
+
+    public ICommand ShowHomeCommand { get; }
+
+    public ICommand ShowConfigureDeviceCommand { get; }
+
+    public ICommand ShowDiagnosticsCommand { get; }
+
+    public ICommand ShowAdvancedModeCommand { get; }
+
+    public ICommand OpenSetupTaskCommand { get; }
+
+    public IReadOnlyList<SetupTaskItemDto> SetupTasks
+    {
+        get => _setupTasks;
+        private set => SetProperty(ref _setupTasks, value);
+    }
+
+    public bool IsHomeScreenVisible
+    {
+        get => _isHomeScreenVisible;
+        private set => SetProperty(ref _isHomeScreenVisible, value);
+    }
+
+    public bool IsConfigureDeviceScreenVisible
+    {
+        get => _isConfigureDeviceScreenVisible;
+        private set => SetProperty(ref _isConfigureDeviceScreenVisible, value);
+    }
+
+    public bool IsDiagnosticsScreenVisible
+    {
+        get => _isDiagnosticsScreenVisible;
+        private set => SetProperty(ref _isDiagnosticsScreenVisible, value);
+    }
+
+    public bool IsWorkspaceVisible
+    {
+        get => _isWorkspaceVisible;
+        private set => SetProperty(ref _isWorkspaceVisible, value);
+    }
+
+    public bool IsAdvancedModeActive
+    {
+        get => _isAdvancedModeActive;
+        private set => SetProperty(ref _isAdvancedModeActive, value);
+    }
+
+    public GridLength ModuleNavigationColumnWidth
+    {
+        get => _moduleNavigationColumnWidth;
+        private set => SetProperty(ref _moduleNavigationColumnWidth, value);
+    }
+
+    public Thickness ConfigurationPanelMargin
+    {
+        get => _configurationPanelMargin;
+        private set => SetProperty(ref _configurationPanelMargin, value);
+    }
+
+    public string WorkspaceTitle
+    {
+        get => _workspaceTitle;
+        private set => SetProperty(ref _workspaceTitle, value);
+    }
+
+    public string WorkspaceDescription
+    {
+        get => _workspaceDescription;
+        private set => SetProperty(ref _workspaceDescription, value);
+    }
 
     public IReadOnlyList<DeviceRoleOptionDto> DeviceRoles
     {
@@ -221,6 +312,58 @@ public sealed class WizardViewModel : ObservableObject
 
         GeneratedRsc = result.RscText;
         StatusMessage = "Предпросмотр обновлён.";
+    }
+
+    private void ShowHome()
+    {
+        ShowScreen(home: true);
+    }
+
+    private void ShowConfigureDevice()
+    {
+        ShowScreen(configureDevice: true);
+    }
+
+    private void ShowDiagnostics()
+    {
+        ShowScreen(diagnostics: true);
+    }
+
+    private void ShowAdvancedMode()
+    {
+        IsAdvancedModeActive = true;
+        ModuleNavigationColumnWidth = new GridLength(340);
+        ConfigurationPanelMargin = new Thickness(20, 0, 0, 0);
+        WorkspaceTitle = "Расширенный режим";
+        WorkspaceDescription = "Технический режим с Device Role, Module Navigation и текущим Basic Network MVP.";
+        ShowScreen(workspace: true);
+    }
+
+    private void OpenSetupTask(object? parameter)
+    {
+        if (parameter is not SetupTaskItemDto task || !task.IsAvailable)
+        {
+            return;
+        }
+
+        IsAdvancedModeActive = false;
+        ModuleNavigationColumnWidth = new GridLength(0);
+        ConfigurationPanelMargin = new Thickness(0);
+        WorkspaceTitle = task.Name;
+        WorkspaceDescription = "Текущий MVP-сценарий: базовая сеть, валидация, предпросмотр и сохранение .rsc.";
+        ShowScreen(workspace: true);
+    }
+
+    private void ShowScreen(
+        bool home = false,
+        bool configureDevice = false,
+        bool diagnostics = false,
+        bool workspace = false)
+    {
+        IsHomeScreenVisible = home;
+        IsConfigureDeviceScreenVisible = configureDevice;
+        IsDiagnosticsScreenVisible = diagnostics;
+        IsWorkspaceVisible = workspace;
     }
 
     private void RefreshModuleNavigation()

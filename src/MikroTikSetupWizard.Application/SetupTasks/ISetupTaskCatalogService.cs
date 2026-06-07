@@ -1,10 +1,8 @@
-using MikroTikSetupWizard.Domain.SetupTasks;
-
 namespace MikroTikSetupWizard.Application.SetupTasks;
 
 public interface ISetupTaskCatalogService
 {
-    IReadOnlyCollection<SetupTask> GetTasks();
+    IReadOnlyCollection<SetupTaskItemDto> GetTasks();
 
-    SetupTask? GetTask(SetupTaskId taskId);
+    SetupTaskItemDto? GetTask(string taskId);
 }

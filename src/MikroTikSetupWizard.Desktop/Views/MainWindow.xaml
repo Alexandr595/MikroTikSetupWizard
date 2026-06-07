@@ -9,6 +9,10 @@
         MinHeight="620"
         ResizeMode="CanResize"
         Background="{DynamicResource AppBackgroundBrush}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="40"
                             CornerRadius="0"
@@ -18,284 +22,501 @@
     </shell:WindowChrome.WindowChrome>
 
     <Grid Margin="28,44,28,28">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="340" />
-            <ColumnDefinition Width="440" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <Border Grid.Column="0"
-                Background="{DynamicResource PanelBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
-                CornerRadius="18"
-                Padding="24">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="24"
-                                  ShadowDepth="0"
-                                  Opacity="0.18"
-                                  Color="#000000" />
-            </Border.Effect>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0">
-                    <TextBlock Text="Роль устройства"
-                               Style="{StaticResource SectionTitleStyle}"
-                               Margin="0,0,0,10" />
-                    <ComboBox ItemsSource="{Binding DeviceRoles}"
-                              SelectedItem="{Binding SelectedDeviceRole}"
-                              DisplayMemberPath="Name" />
-                    <TextBlock Text="{Binding SelectedDeviceRole.Description}"
-                               Foreground="{DynamicResource MutedTextBrush}"
-                               FontSize="12"
-                               Margin="0,2,0,16" />
-                </StackPanel>
-
-                <TextBlock Grid.Row="1"
-                           Text="Модули"
-                           Style="{StaticResource SectionTitleStyle}"
-                           Margin="0,10,0,10" />
-
-                <ScrollViewer Grid.Row="2"
-                              VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding ModuleNavigationItems}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border CornerRadius="10"
-                                        Padding="12"
-                                        Margin="0,0,10,10">
-                                    <Border.Style>
-                                        <Style TargetType="{x:Type Border}">
-                                            <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
-                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-                                            <Setter Property="BorderThickness" Value="1" />
-                                            <Setter Property="Opacity" Value="1" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
-                                                    <Setter Property="BorderBrush" Value="#C8962F" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsAllowed}" Value="False">
-                                                    <Setter Property="Opacity" Value="0.52" />
-                                                    <Setter Property="BorderBrush" Value="#3A3F4B" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <StackPanel>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Name}"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextBrush}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       VerticalAlignment="Center" />
-                                            <Border Grid.Column="1"
-                                                    CornerRadius="8"
-                                                    Padding="8,3"
-                                                    Margin="10,0,0,0">
-                                                <Border.Style>
-                                                    <Style TargetType="{x:Type Border}">
-                                                        <Setter Property="Background" Value="#202737" />
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-                                                        <Setter Property="BorderThickness" Value="1" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Включён">
-                                                                <Setter Property="Background" Value="#173826" />
-                                                                <Setter Property="BorderBrush" Value="#2F9E5F" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
-                                                                <Setter Property="Background" Value="#3A2F12" />
-                                                                <Setter Property="BorderBrush" Value="#C8962F" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Заблокирован">
-                                                                <Setter Property="Background" Value="#231F25" />
-                                                                <Setter Property="BorderBrush" Value="#4B2E38" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Border.Style>
-                                                <TextBlock Text="{Binding Status}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource TextBrush}" />
-                                            </Border>
-                                        </Grid>
-                                        <TextBlock Text="{Binding Description}"
-                                                   Foreground="{DynamicResource MutedTextBrush}"
-                                                   FontSize="12"
-                                                   Margin="0,6,0,0" />
-                                        <TextBlock Text="{Binding DisabledReason}"
-                                                   Foreground="{DynamicResource DangerBrush}"
-                                                   FontSize="12"
-                                                   Margin="0,6,0,0">
-                                            <TextBlock.Style>
-                                                <Style TargetType="{x:Type TextBlock}">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DisabledReason}" Value="{x:Null}">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Warning}"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   FontSize="12"
-                                                   Margin="0,6,0,0">
-                                            <TextBlock.Style>
-                                                <Style TargetType="{x:Type TextBlock}">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Warning}" Value="{x:Null}">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Border>
-
-        <Border Grid.Column="1"
-                Margin="20,0,0,0"
-                Background="{DynamicResource PanelBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
-                CornerRadius="18"
-                Padding="26">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="24"
-                                  ShadowDepth="0"
-                                  Opacity="0.18"
-                                  Color="#000000" />
-            </Border.Effect>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="0,0,16,0">
-                    <TextBlock Text="MikroTik Setup Wizard" Style="{StaticResource TitleTextStyle}" />
-                    <TextBlock Text="Первичная настройка RouterOS" Foreground="{DynamicResource MutedTextBrush}" />
-
-                    <TextBlock Text="Устройство" Style="{StaticResource SectionTitleStyle}" />
-
-                    <Button Content="Профиль: Малый офис"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{Binding ApplySmallOfficeProfileCommand}" />
-
-                    <TextBlock Text="Имя роутера" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding RouterName, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="Версия RouterOS" Style="{StaticResource FieldLabelStyle}" />
-                    <ComboBox ItemsSource="{Binding RouterOsVersions}"
-                              SelectedItem="{Binding SelectedRouterOsVersion}" />
-
-                    <TextBlock Text="Интерфейсы" Style="{StaticResource SectionTitleStyle}" />
-
-                    <TextBlock Text="WAN-интерфейс" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding WanInterface, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="LAN bridge" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding LanBridgeName, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="LAN" Style="{StaticResource SectionTitleStyle}" />
-
-                    <TextBlock Text="IP/CIDR LAN gateway" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding LanAddress, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="Префикс сети" Style="{StaticResource FieldLabelStyle}" />
-                    <ComboBox ItemsSource="{Binding PrefixLengths}"
-                              SelectedItem="{Binding SelectedPrefixLength}" />
-
-                    <TextBlock Text="Начало DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding DhcpPoolStart, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="Конец DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding DhcpPoolEnd, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="DNS-серверы" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding DnsServers, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="Администратор" Style="{StaticResource SectionTitleStyle}" />
-
-                    <TextBlock Text="Имя администратора" Style="{StaticResource FieldLabelStyle}" />
-                    <TextBox Text="{Binding AdminUserName, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <TextBlock Text="Пароль администратора" Style="{StaticResource FieldLabelStyle}" />
-                    <PasswordBox x:Name="AdminPasswordBox"
-                                 PasswordChanged="AdminPasswordBox_OnPasswordChanged" />
-
-                    <CheckBox Content="Включить NAT masquerade"
-                              IsChecked="{Binding EnableNat}" />
-                    <CheckBox Content="Добавить базовый firewall"
-                              IsChecked="{Binding EnableBasicFirewall}" />
-
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button Content="Сгенерировать"
-                                Command="{Binding GeneratePreviewCommand}" />
-                        <Button Content="Сохранить .rsc"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Command="{Binding SaveFileCommand}" />
-                    </StackPanel>
-
-                    <TextBlock Text="{Binding StatusMessage}"
-                               Foreground="{DynamicResource SuccessBrush}"
-                               Margin="0,14,0,0" />
-
-                    <TextBlock Text="{Binding ValidationMessage}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               Margin="0,8,0,0" />
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
-
-        <Border Grid.Column="2"
-                Margin="20,0,0,0"
-                Background="{DynamicResource PanelBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
-                CornerRadius="18"
-                Padding="26">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="24"
-                                  ShadowDepth="0"
-                                  Opacity="0.18"
-                                  Color="#000000" />
-            </Border.Effect>
-            <Grid>
+        <Grid Visibility="{Binding IsHomeScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Margin="0,0,0,18">
-                <TextBlock Text="Предпросмотр .rsc" Style="{StaticResource TitleTextStyle}" />
-                <TextBlock Text="Скрипт генерируется из ConfigurationPlan и готов к сохранению."
-                           Foreground="{DynamicResource MutedTextBrush}" />
+            <StackPanel Grid.Row="0"
+                        Margin="0,0,0,28">
+                <TextBlock Text="MikroTik Setup Wizard"
+                           Style="{StaticResource TitleTextStyle}" />
+                <TextBlock Text="Выберите задачу, а приложение покажет только нужные шаги."
+                           Foreground="{DynamicResource MutedTextBrush}"
+                           FontSize="16" />
             </StackPanel>
 
-            <TextBox Grid.Row="1"
-                     Text="{Binding GeneratedRsc, Mode=OneWay}"
-                     FontFamily="Consolas"
-                     FontSize="13"
-                     AcceptsReturn="True"
-                     AcceptsTab="True"
-                     IsReadOnly="True"
-                     HorizontalScrollBarVisibility="Auto"
-                     VerticalScrollBarVisibility="Auto" />
+            <UniformGrid Grid.Row="1"
+                         Columns="3"
+                         Rows="1">
+                <Button Command="{Binding ShowConfigureDeviceCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,18,0"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Настроить устройство"
+                                   FontSize="22"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Пошаговые мастера для типовых сетевых задач."
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   Margin="0,10,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding ShowDiagnosticsCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,18,0"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Проверить устройство"
+                                   FontSize="22"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Будущий помощник диагностики RouterOS и рекомендаций."
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   Margin="0,10,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding ShowAdvancedModeCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0"
+                        Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Расширенный режим"
+                                   FontSize="22"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Device Role, Module Navigation и текущий Basic Network сценарий."
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   Margin="0,10,0,0" />
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+        </Grid>
+
+        <Grid Visibility="{Binding IsConfigureDeviceScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0"
+                  Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Назад"
+                        Command="{Binding ShowHomeCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,18,0" />
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Настроить устройство"
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="Выберите понятный сценарий. Технические модули будут подобраны внутри приложения."
+                               Foreground="{DynamicResource MutedTextBrush}" />
+                </StackPanel>
             </Grid>
-        </Border>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding SetupTasks}"
+                              Margin="0,0,16,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.OpenSetupTaskCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}"
+                                    IsEnabled="{Binding IsAvailable}"
+                                    Width="300"
+                                    MinHeight="168"
+                                    Margin="0,0,18,18"
+                                    Padding="20">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                        <Setter Property="Opacity" Value="1" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsAvailable}" Value="False">
+                                                <Setter Property="Opacity" Value="0.52" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="20"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Row="1"
+                                               Text="{Binding Description}"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,10,0,18" />
+                                    <Border Grid.Row="2"
+                                            HorizontalAlignment="Left"
+                                            Background="{DynamicResource InputBackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="10,4">
+                                        <TextBlock Text="{Binding Status}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedTextBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <Grid Visibility="{Binding IsDiagnosticsScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Button Content="Назад"
+                    Command="{Binding ShowHomeCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,24" />
+
+            <Border Grid.Row="1"
+                    Background="{DynamicResource PanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    Padding="28"
+                    MaxWidth="720"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24"
+                                      ShadowDepth="0"
+                                      Opacity="0.18"
+                                      Color="#000000" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Проверить устройство"
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="Диагностика устройства будет добавлена позже."
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               FontSize="16" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Visibility="{Binding IsWorkspaceVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0"
+                  Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Назад"
+                        Command="{Binding ShowHomeCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,18,0" />
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding WorkspaceTitle}"
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="{Binding WorkspaceDescription}"
+                               Foreground="{DynamicResource MutedTextBrush}" />
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding ModuleNavigationColumnWidth}" />
+                    <ColumnDefinition Width="440" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Visibility="{Binding IsAdvancedModeActive, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="0"
+                                          Opacity="0.18"
+                                          Color="#000000" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="Роль устройства"
+                                       Style="{StaticResource SectionTitleStyle}"
+                                       Margin="0,0,0,10" />
+                            <ComboBox ItemsSource="{Binding DeviceRoles}"
+                                      SelectedItem="{Binding SelectedDeviceRole}"
+                                      DisplayMemberPath="Name" />
+                            <TextBlock Text="{Binding SelectedDeviceRole.Description}"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       FontSize="12"
+                                       Margin="0,2,0,16" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1"
+                                   Text="Модули"
+                                   Style="{StaticResource SectionTitleStyle}"
+                                   Margin="0,10,0,10" />
+
+                        <ScrollViewer Grid.Row="2"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ModuleNavigationItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="10"
+                                                Padding="12"
+                                                Margin="0,0,10,10">
+                                            <Border.Style>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                    <Setter Property="Opacity" Value="1" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
+                                                            <Setter Property="BorderBrush" Value="#C8962F" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                            <Setter Property="Opacity" Value="0.52" />
+                                                            <Setter Property="BorderBrush" Value="#3A3F4B" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextBrush}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center" />
+                                                    <Border Grid.Column="1"
+                                                            CornerRadius="8"
+                                                            Padding="8,3"
+                                                            Margin="10,0,0,0">
+                                                        <Border.Style>
+                                                            <Style TargetType="{x:Type Border}">
+                                                                <Setter Property="Background" Value="#202737" />
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                                                <Setter Property="BorderThickness" Value="1" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Включён">
+                                                                        <Setter Property="Background" Value="#173826" />
+                                                                        <Setter Property="BorderBrush" Value="#2F9E5F" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Предупреждение">
+                                                                        <Setter Property="Background" Value="#3A2F12" />
+                                                                        <Setter Property="BorderBrush" Value="#C8962F" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Заблокирован">
+                                                                        <Setter Property="Background" Value="#231F25" />
+                                                                        <Setter Property="BorderBrush" Value="#4B2E38" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding Status}"
+                                                                   FontSize="11"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource TextBrush}" />
+                                                    </Border>
+                                                </Grid>
+                                                <TextBlock Text="{Binding Description}"
+                                                           Foreground="{DynamicResource MutedTextBrush}"
+                                                           FontSize="12"
+                                                           Margin="0,6,0,0" />
+                                                <TextBlock Text="{Binding DisabledReason}"
+                                                           Foreground="{DynamicResource DangerBrush}"
+                                                           FontSize="12"
+                                                           Margin="0,6,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="{x:Type TextBlock}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DisabledReason}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Warning}"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           FontSize="12"
+                                                           Margin="0,6,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="{x:Type TextBlock}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Warning}" Value="{x:Null}">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1"
+                        Margin="{Binding ConfigurationPanelMargin}"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="26">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="0"
+                                          Opacity="0.18"
+                                          Color="#000000" />
+                    </Border.Effect>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,0,16,0">
+                            <TextBlock Text="MikroTik Setup Wizard" Style="{StaticResource TitleTextStyle}" />
+                            <TextBlock Text="Первичная настройка RouterOS" Foreground="{DynamicResource MutedTextBrush}" />
+
+                            <TextBlock Text="Устройство" Style="{StaticResource SectionTitleStyle}" />
+
+                            <Button Content="Профиль: Малый офис"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding ApplySmallOfficeProfileCommand}" />
+
+                            <TextBlock Text="Имя роутера" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding RouterName, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Версия RouterOS" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding RouterOsVersions}"
+                                      SelectedItem="{Binding SelectedRouterOsVersion}" />
+
+                            <TextBlock Text="Интерфейсы" Style="{StaticResource SectionTitleStyle}" />
+
+                            <TextBlock Text="WAN-интерфейс" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding WanInterface, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="LAN bridge" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding LanBridgeName, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="LAN" Style="{StaticResource SectionTitleStyle}" />
+
+                            <TextBlock Text="IP/CIDR LAN gateway" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding LanAddress, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Префикс сети" Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding PrefixLengths}"
+                                      SelectedItem="{Binding SelectedPrefixLength}" />
+
+                            <TextBlock Text="Начало DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding DhcpPoolStart, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Конец DHCP-пула" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding DhcpPoolEnd, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="DNS-серверы" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding DnsServers, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Администратор" Style="{StaticResource SectionTitleStyle}" />
+
+                            <TextBlock Text="Имя администратора" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding AdminUserName, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Пароль администратора" Style="{StaticResource FieldLabelStyle}" />
+                            <PasswordBox x:Name="AdminPasswordBox"
+                                         PasswordChanged="AdminPasswordBox_OnPasswordChanged" />
+
+                            <CheckBox Content="Включить NAT masquerade"
+                                      IsChecked="{Binding EnableNat}" />
+                            <CheckBox Content="Добавить базовый firewall"
+                                      IsChecked="{Binding EnableBasicFirewall}" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Content="Сгенерировать"
+                                        Command="{Binding GeneratePreviewCommand}" />
+                                <Button Content="Сохранить .rsc"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding SaveFileCommand}" />
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Foreground="{DynamicResource SuccessBrush}"
+                                       Margin="0,14,0,0" />
+
+                            <TextBlock Text="{Binding ValidationMessage}"
+                                       Foreground="{DynamicResource DangerBrush}"
+                                       Margin="0,8,0,0" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Margin="20,0,0,0"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="26">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="0"
+                                          Opacity="0.18"
+                                          Color="#000000" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+                            <TextBlock Text="Предпросмотр .rsc" Style="{StaticResource TitleTextStyle}" />
+                            <TextBlock Text="Скрипт генерируется из ConfigurationPlan и готов к сохранению."
+                                       Foreground="{DynamicResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <TextBox Grid.Row="1"
+                                 Text="{Binding GeneratedRsc, Mode=OneWay}"
+                                 FontFamily="Consolas"
+                                 FontSize="13"
+                                 AcceptsReturn="True"
+                                 AcceptsTab="True"
+                                 IsReadOnly="True"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 VerticalScrollBarVisibility="Auto" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
