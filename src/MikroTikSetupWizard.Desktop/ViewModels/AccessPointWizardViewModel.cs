@@ -372,7 +372,10 @@ public sealed class AccessPointWizardViewModel : ObservableObject
 
     private IReadOnlyList<string> BuildValidationWarnings()
     {
-        return [];
+        return
+        [
+            "Все свободные Ethernet-порты будут добавлены в bridge. Порты, которые уже состоят в bridge, будут пропущены."
+        ];
     }
 
     private IReadOnlyList<string> GetDnsServers()
