@@ -1304,7 +1304,6 @@
                                 <Button Grid.Column="1"
                                         Content="Найти устройства"
                                         Command="{Binding FindDevicesCommand}"
-                                        Style="{StaticResource PrimaryButtonStyle}"
                                         Margin="18,0,0,0" />
                             </Grid>
 
