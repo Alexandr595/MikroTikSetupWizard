@@ -1257,16 +1257,19 @@
                     HorizontalAlignment="Left"
                     Margin="0,0,0,24" />
 
-            <Grid Grid.Row="1"
-                  DataContext="{Binding DeviceDiscovery}"
-                  MaxWidth="920"
-                  HorizontalAlignment="Left"
-                  VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="1"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <Grid DataContext="{Binding DeviceDiscovery}"
+                      MaxWidth="920"
+                      Margin="0,0,18,28"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
                         Background="{DynamicResource PanelBackgroundBrush}"
@@ -1462,7 +1465,8 @@
                         </ItemsControl>
                     </StackPanel>
                 </Border>
-            </Grid>
+                </Grid>
+            </ScrollViewer>
         </Grid>
 
         <Grid Visibility="{Binding IsWorkspaceVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
