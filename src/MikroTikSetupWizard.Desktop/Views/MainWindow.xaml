@@ -1266,28 +1266,48 @@
                     Padding="28"
                     MaxWidth="920"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top">
+                    VerticalAlignment="Stretch">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="24"
                                       ShadowDepth="0"
                                       Opacity="0.18"
                                       Color="#000000" />
                 </Border.Effect>
-                <StackPanel>
-                    <TextBlock Text="Проверить устройство"
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="Проверить устройство"
                                Style="{StaticResource TitleTextStyle}" />
-                    <TextBlock Text="Диагностика устройства будет добавлена позже."
+                    <TextBlock Grid.Row="1"
+                               Text="Диагностика устройства будет добавлена позже."
                                Foreground="{DynamicResource MutedTextBrush}"
                                FontSize="16"
                                Margin="0,0,0,24" />
 
-                    <Border Background="{DynamicResource InputBackgroundBrush}"
+                    <Border Grid.Row="2"
+                            Background="{DynamicResource InputBackgroundBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="14"
                             Padding="18">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0"
+                                  Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
@@ -1307,7 +1327,8 @@
                                         Margin="18,0,0,0" />
                             </Grid>
 
-                            <Grid Margin="0,0,0,14">
+                            <Grid Grid.Row="1"
+                                  Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
@@ -1327,26 +1348,36 @@
                                         VerticalAlignment="Top" />
                             </Grid>
 
-                            <TextBlock Text="{Binding StatusMessage}"
+                            <TextBlock Grid.Row="2"
+                                       Text="{Binding StatusMessage}"
                                        Foreground="{DynamicResource MutedTextBrush}"
                                        Margin="0,0,0,14" />
 
-                            <Border Background="{DynamicResource PanelBackgroundBrush}"
+                            <Border Grid.Row="3"
+                                    Background="{DynamicResource PanelBackgroundBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="10"
                                     Padding="14"
                                     Margin="0,0,0,14">
-                                <StackPanel>
-                                    <TextBlock Text="Результаты проверки"
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="Результаты проверки"
                                                FontWeight="SemiBold"
                                                Margin="0,0,0,10" />
 
-                                    <TextBlock Text="Проверенные вручную IP появятся здесь."
+                                    <TextBlock Grid.Row="1"
+                                               Text="Проверенные вручную IP появятся здесь."
                                                Foreground="{DynamicResource MutedTextBrush}"
                                                Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                    <ScrollViewer MaxHeight="280"
+                                    <ScrollViewer Grid.Row="2"
                                                   VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding Devices}">
                                             <ItemsControl.ItemTemplate>
@@ -1396,13 +1427,15 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
-                                </StackPanel>
+                                </Grid>
                             </Border>
 
-                            <TextBlock Text="Рекомендации"
+                            <TextBlock Grid.Row="4"
+                                       Text="Рекомендации"
                                        FontWeight="SemiBold"
                                        Margin="0,0,0,8" />
-                            <ItemsControl ItemsSource="{Binding Recommendations}">
+                            <ItemsControl Grid.Row="5"
+                                          ItemsSource="{Binding Recommendations}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding}"
@@ -1412,9 +1445,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </StackPanel>
+                        </Grid>
                     </Border>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
 
