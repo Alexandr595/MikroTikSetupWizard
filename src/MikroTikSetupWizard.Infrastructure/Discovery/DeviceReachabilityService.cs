@@ -46,11 +46,11 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
         if (reachablePort.HasValue)
         {
             var reachabilityStatus = IsMikroTikPort(reachablePort.Value)
-                ? "MikroTik port reachable"
+                ? "Probable MikroTik port reachable"
                 : "Generic TCP reachable";
 
             notes.Add(IsMikroTikPort(reachablePort.Value)
-                ? $"Доступен MikroTik-порт {reachablePort.Value} WinBox/API. Вероятно, это MikroTik, но без авторизации identity/version неизвестны."
+                ? $"Вероятно открыт MikroTik-порт {reachablePort.Value} (WinBox/API). Это не подтверждает identity/version без авторизации."
                 : "Доступен SSH-порт. Это не доказывает, что устройство MikroTik.");
 
             return device with
@@ -113,7 +113,7 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
     {
         try
         {
-            using var tcpClient = new TcpClient();
+            using var tcpClient = new TcpClient(ipAddress.AddressFamily);
             var connectTask = tcpClient.ConnectAsync(ipAddress, port);
             var timeoutTask = Task.Delay(TcpProbeTimeout, cancellationToken);
             var completedTask = await Task.WhenAny(connectTask, timeoutTask);
@@ -124,7 +124,19 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
             }
 
             await connectTask;
-            return tcpClient.Connected;
+
+            if (!tcpClient.Connected)
+            {
+                return false;
+            }
+
+            if (tcpClient.Client.RemoteEndPoint is not IPEndPoint remoteEndPoint)
+            {
+                return false;
+            }
+
+            return remoteEndPoint.Address.Equals(ipAddress)
+                && remoteEndPoint.Port == port;
         }
         catch
         {
