@@ -53,6 +53,7 @@ public sealed class WizardViewModel : ObservableObject
         ISaveFileDialogService saveFileDialogService,
         IModuleNavigationService moduleNavigationService,
         ISetupTaskCatalogService setupTaskCatalogService,
+        IDeviceDiscoveryService deviceDiscoveryService,
         IDeviceManualDiscoveryService manualDiscoveryService)
     {
         _setupWizardService = setupWizardService;
@@ -64,7 +65,7 @@ public sealed class WizardViewModel : ObservableObject
             new AccessPointConfigurationBuilder(),
             _setupWizardService,
             _saveFileDialogService);
-        DeviceDiscovery = new DeviceDiscoveryViewModel(manualDiscoveryService);
+        DeviceDiscovery = new DeviceDiscoveryViewModel(deviceDiscoveryService, manualDiscoveryService);
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());

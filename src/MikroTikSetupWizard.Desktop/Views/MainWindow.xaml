@@ -1269,9 +1269,48 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="22"
+                        Margin="0,0,0,16">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="0"
+                                          Opacity="0.18"
+                                          Color="#000000" />
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,18,0">
+                            <TextBlock Text="Найти MikroTik рядом"
+                                       Style="{StaticResource TitleTextStyle}" />
+                            <TextBlock Text="MNDP ищет устройства только в одной L2-сети. Поиск не проходит через роутеры/VLAN, не сканирует подсети и не выполняет авторизацию."
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,0" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Content="Найти MikroTik рядом"
+                                Command="{Binding FindDevicesCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
                         Background="{DynamicResource PanelBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
@@ -1330,7 +1369,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="1"
+                <Border Grid.Row="2"
                         Background="{DynamicResource PanelBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
@@ -1436,7 +1475,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="2"
+                <Border Grid.Row="3"
                         Background="{DynamicResource PanelBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"

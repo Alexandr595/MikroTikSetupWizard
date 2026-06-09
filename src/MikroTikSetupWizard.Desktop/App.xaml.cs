@@ -17,6 +17,7 @@ public partial class App : System.Windows.Application
 
         var reachabilityService = new DeviceReachabilityService();
         var manualDiscoveryService = new ManualDeviceDiscoveryService(reachabilityService);
+        var deviceDiscoveryService = new MndpDeviceDiscoveryService();
 
         var window = new MainWindow
         {
@@ -25,6 +26,7 @@ public partial class App : System.Windows.Application
                 new SaveFileDialogService(),
                 new ModuleNavigationService(),
                 new SetupTaskCatalogService(),
+                deviceDiscoveryService,
                 manualDiscoveryService)
         };
 
