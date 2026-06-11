@@ -4,6 +4,8 @@ public enum DeviceConnectionStatus
 {
     NotStarted,
     NotImplemented,
+    HostKeyConfirmationRequired,
+    HostKeyMismatch,
     Success,
     PartialSuccess,
     InvalidCredentials,

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SSH.NET" Version="2025.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MikroTikSetupWizard.Application\MikroTikSetupWizard.Application.csproj" />
     <ProjectReference Include="..\MikroTikSetupWizard.Domain\MikroTikSetupWizard.Domain.csproj" />
   </ItemGroup>

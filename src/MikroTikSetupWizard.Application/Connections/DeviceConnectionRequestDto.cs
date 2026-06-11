@@ -10,6 +10,8 @@ public sealed class DeviceConnectionRequestDto
 
     public DeviceConnectionMethod Method { get; init; } = DeviceConnectionMethod.Ssh;
 
+    public string? ExpectedHostKeyFingerprint { get; init; }
+
     public override string ToString()
     {
         return $"{Method}: {Login}@{IpAddress}";

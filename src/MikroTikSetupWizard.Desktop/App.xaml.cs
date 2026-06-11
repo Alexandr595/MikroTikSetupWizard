@@ -6,6 +6,7 @@ using MikroTikSetupWizard.Desktop.Dialogs;
 using MikroTikSetupWizard.Desktop.ViewModels;
 using MikroTikSetupWizard.Desktop.Views;
 using MikroTikSetupWizard.Infrastructure.Discovery;
+using MikroTikSetupWizard.Infrastructure.Ssh;
 
 namespace MikroTikSetupWizard.Desktop;
 
@@ -18,6 +19,7 @@ public partial class App : System.Windows.Application
         var reachabilityService = new DeviceReachabilityService();
         var manualDiscoveryService = new ManualDeviceDiscoveryService(reachabilityService);
         var deviceDiscoveryService = new MndpDeviceDiscoveryService();
+        var deviceConnectionService = new SshDeviceConnectionService();
 
         var window = new MainWindow
         {
@@ -27,7 +29,8 @@ public partial class App : System.Windows.Application
                 new ModuleNavigationService(),
                 new SetupTaskCatalogService(),
                 deviceDiscoveryService,
-                manualDiscoveryService)
+                manualDiscoveryService,
+                deviceConnectionService)
         };
 
         window.Show();

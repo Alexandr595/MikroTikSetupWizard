@@ -9,6 +9,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 {
     private readonly IDeviceDiscoveryService _deviceDiscoveryService;
     private readonly IDeviceManualDiscoveryService _manualDiscoveryService;
+    private readonly IDeviceConnectionService _deviceConnectionService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
     private IReadOnlyList<string> _recommendations =
     [
@@ -26,19 +27,31 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private string _connectionStatusMessage = string.Empty;
     private DeviceInfoDto? _deviceInfo;
     private bool _isConnectionFormVisible;
+    private string _connectionPassword = string.Empty;
+    private string? _hostKeyFingerprint;
+    private string? _hostKeyAlgorithm;
+    private bool _isHostKeyConfirmationRequired;
+    private bool _isConnectionInProgress;
 
     public DeviceDiscoveryViewModel(
         IDeviceDiscoveryService deviceDiscoveryService,
-        IDeviceManualDiscoveryService manualDiscoveryService)
+        IDeviceManualDiscoveryService manualDiscoveryService,
+        IDeviceConnectionService deviceConnectionService)
     {
         _deviceDiscoveryService = deviceDiscoveryService;
         _manualDiscoveryService = manualDiscoveryService;
+        _deviceConnectionService = deviceConnectionService;
         FindDevicesCommand = new RelayCommand(
             async _ => await FindNearbyDevicesAsync(),
             _ => !IsDiscoveryInProgress);
         AddManualDeviceCommand = new RelayCommand(async _ => await AddManualDeviceAsync());
         OpenConnectionFormCommand = new RelayCommand(OpenConnectionForm);
-        ConnectToDeviceCommand = new RelayCommand(_ => ShowConnectionPlaceholder());
+        ConnectToDeviceCommand = new RelayCommand(
+            async _ => await ConnectToDeviceAsync(),
+            _ => !IsConnectionInProgress);
+        TrustHostKeyCommand = new RelayCommand(
+            async _ => await TrustHostKeyAndConnectAsync(),
+            _ => IsHostKeyConfirmationRequired && !IsConnectionInProgress);
     }
 
     public ICommand FindDevicesCommand { get; }
@@ -48,6 +61,8 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     public ICommand OpenConnectionFormCommand { get; }
 
     public ICommand ConnectToDeviceCommand { get; }
+
+    public ICommand TrustHostKeyCommand { get; }
 
     public string ManualIpAddress
     {
@@ -92,6 +107,12 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 
     public string ConnectionMethodDisplay => "SSH read-only";
 
+    public string ConnectionPassword
+    {
+        get => _connectionPassword;
+        set => SetProperty(ref _connectionPassword, value);
+    }
+
     public string ConnectionStatusMessage
     {
         get => _connectionStatusMessage;
@@ -108,6 +129,61 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     {
         get => _isConnectionFormVisible;
         private set => SetProperty(ref _isConnectionFormVisible, value);
+    }
+
+    public string? HostKeyFingerprint
+    {
+        get => _hostKeyFingerprint;
+        private set
+        {
+            if (SetProperty(ref _hostKeyFingerprint, value))
+            {
+                OnPropertyChanged(nameof(HasHostKeyFingerprint));
+            }
+        }
+    }
+
+    public string? HostKeyAlgorithm
+    {
+        get => _hostKeyAlgorithm;
+        private set => SetProperty(ref _hostKeyAlgorithm, value);
+    }
+
+    public bool HasHostKeyFingerprint => !string.IsNullOrWhiteSpace(HostKeyFingerprint);
+
+    public bool IsHostKeyConfirmationRequired
+    {
+        get => _isHostKeyConfirmationRequired;
+        private set
+        {
+            if (SetProperty(ref _isHostKeyConfirmationRequired, value)
+                && TrustHostKeyCommand is RelayCommand trustHostKeyCommand)
+            {
+                trustHostKeyCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public bool IsConnectionInProgress
+    {
+        get => _isConnectionInProgress;
+        private set
+        {
+            if (!SetProperty(ref _isConnectionInProgress, value))
+            {
+                return;
+            }
+
+            if (ConnectToDeviceCommand is RelayCommand connectCommand)
+            {
+                connectCommand.RaiseCanExecuteChanged();
+            }
+
+            if (TrustHostKeyCommand is RelayCommand trustCommand)
+            {
+                trustCommand.RaiseCanExecuteChanged();
+            }
+        }
     }
 
     public IReadOnlyList<string> Recommendations
@@ -210,13 +286,90 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         SelectedDevice = device;
         ConnectionIp = device.IpAddress;
         DeviceInfo = null;
-        ConnectionStatusMessage = "Форма подготовлена. Реальное SSH-подключение пока не выполняется.";
+        ConnectionPassword = string.Empty;
+        HostKeyFingerprint = null;
+        HostKeyAlgorithm = null;
+        IsHostKeyConfirmationRequired = false;
+        ConnectionStatusMessage = "Введите пароль и проверьте SSH-подключение.";
         IsConnectionFormVisible = true;
     }
 
-    private void ShowConnectionPlaceholder()
+    private async Task ConnectToDeviceAsync()
     {
-        ConnectionStatusMessage = "Подключение к устройству будет добавлено на следующем этапе.";
+        await CheckConnectionAsync(expectedHostKeyFingerprint: null);
+    }
+
+    private async Task TrustHostKeyAndConnectAsync()
+    {
+        if (string.IsNullOrWhiteSpace(HostKeyFingerprint))
+        {
+            ConnectionStatusMessage = "Fingerprint SSH host key не получен.";
+            return;
+        }
+
+        await CheckConnectionAsync(HostKeyFingerprint);
+    }
+
+    private async Task CheckConnectionAsync(string? expectedHostKeyFingerprint)
+    {
+        if (IsConnectionInProgress)
+        {
+            return;
+        }
+
+        if (!IsValidIpv4(ConnectionIp))
+        {
+            ConnectionStatusMessage = "Укажите корректный IPv4 адрес.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ConnectionLogin))
+        {
+            ConnectionStatusMessage = "Укажите логин.";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(ConnectionPassword))
+        {
+            ConnectionStatusMessage = IsHostKeyConfirmationRequired
+                ? "Введите пароль повторно, затем подтвердите host key."
+                : "Введите пароль.";
+            return;
+        }
+
+        IsConnectionInProgress = true;
+        IsHostKeyConfirmationRequired = false;
+        ConnectionStatusMessage = "Проверяем SSH host key...";
+
+        try
+        {
+            var result = await _deviceConnectionService.CheckConnectionAsync(
+                new DeviceConnectionRequestDto
+                {
+                    IpAddress = ConnectionIp.Trim(),
+                    Login = ConnectionLogin.Trim(),
+                    Password = ConnectionPassword,
+                    Method = DeviceConnectionMethod.Ssh,
+                    ExpectedHostKeyFingerprint = expectedHostKeyFingerprint
+                });
+
+            HostKeyFingerprint = result.HostKeyFingerprint;
+            HostKeyAlgorithm = result.HostKeyAlgorithm;
+            DeviceInfo = result.DeviceInfo;
+            IsHostKeyConfirmationRequired =
+                result.Status == DeviceConnectionStatus.HostKeyConfirmationRequired;
+            ConnectionStatusMessage = result.Message;
+        }
+        catch
+        {
+            ConnectionStatusMessage = "Не удалось проверить SSH-подключение.";
+            IsHostKeyConfirmationRequired = false;
+        }
+        finally
+        {
+            ConnectionPassword = string.Empty;
+            IsConnectionInProgress = false;
+        }
     }
 
     private static bool IsValidIpv4(string value)
