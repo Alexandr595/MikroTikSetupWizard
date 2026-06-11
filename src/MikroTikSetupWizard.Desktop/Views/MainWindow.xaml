@@ -1331,6 +1331,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
@@ -1505,6 +1506,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
@@ -1615,6 +1617,124 @@
                                        TextWrapping="Wrap"
                                        VerticalAlignment="Center" />
                         </Grid>
+
+                        <Border Grid.Row="6"
+                                Background="{DynamicResource InputBackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Padding="14"
+                                Margin="0,14,0,0"
+                                Visibility="{Binding HasDeviceInfo, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="Информация RouterOS"
+                                           FontWeight="SemiBold"
+                                           FontSize="16"
+                                           Margin="0,0,0,10" />
+
+                                <Grid Grid.Row="1"
+                                      Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="Identity:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,12,5" />
+                                    <TextBlock Grid.Row="0"
+                                               Grid.Column="1"
+                                               Text="{Binding DeviceInfo.Identity}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="1"
+                                               Text="RouterOS:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,12,5" />
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="1"
+                                               Text="{Binding DeviceInfo.RouterOsVersion}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="2"
+                                               Text="Board/model:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,12,5" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="{Binding DeviceInfo.BoardName}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Grid.Row="3"
+                                               Text="Uptime:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,12,0" />
+                                    <TextBlock Grid.Row="3"
+                                               Grid.Column="1"
+                                               Text="{Binding DeviceInfo.Uptime}"
+                                               TextWrapping="Wrap" />
+                                </Grid>
+
+                                <StackPanel Grid.Row="2">
+                                    <TextBlock Text="Интерфейсы"
+                                               FontWeight="SemiBold"
+                                               Margin="0,0,0,8" />
+                                    <ListBox ItemsSource="{Binding DeviceInfo.Interfaces}"
+                                             MaxHeight="220"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,8,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="140" />
+                                                        <ColumnDefinition Width="100" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="SemiBold"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Type}"
+                                                               Foreground="{DynamicResource MutedTextBrush}"
+                                                               TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Column="2"
+                                                               Foreground="{DynamicResource MutedTextBrush}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="{x:Type TextBlock}">
+                                                                <Setter Property="Text" Value="Неактивен" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                                        <Setter Property="Text" Value="Работает" />
+                                                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsDisabled}" Value="True">
+                                                                        <Setter Property="Text" Value="Отключён" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </Grid>
                 </Border>
 

@@ -8,6 +8,7 @@ namespace MikroTikSetupWizard.Infrastructure.Ssh;
 public sealed class SshDeviceConnectionService : IDeviceConnectionService
 {
     private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(5);
     private const int SshPort = 22;
 
     public async Task<DeviceConnectionResultDto> CheckConnectionAsync(
@@ -80,13 +81,14 @@ public sealed class SshDeviceConnectionService : IDeviceConnectionService
                     receivedAlgorithm);
             }
 
+            var result = await ReadDeviceInfoAsync(
+                client,
+                receivedFingerprint,
+                receivedAlgorithm,
+                cancellationToken);
             client.Disconnect();
 
-            return CreateResult(
-                DeviceConnectionStatus.Success,
-                "Host key confirmed, read-only commands will be added next.",
-                receivedFingerprint,
-                receivedAlgorithm);
+            return result;
         }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -117,6 +119,188 @@ public sealed class SshDeviceConnectionService : IDeviceConnectionService
                 receivedFingerprint,
                 receivedAlgorithm);
         }
+    }
+
+    private static async Task<DeviceConnectionResultDto> ReadDeviceInfoAsync(
+        SshClient client,
+        string? fingerprint,
+        string? algorithm,
+        CancellationToken cancellationToken)
+    {
+        var identityCommand = await ExecuteReadOnlyCommandAsync(
+            client,
+            RouterOsReadOnlyCommandCatalog.Identity,
+            cancellationToken);
+
+        if (!identityCommand.IsSuccess)
+        {
+            return CreateRequiredCommandFailure(
+                identityCommand,
+                "Не удалось прочитать identity устройства.",
+                fingerprint,
+                algorithm);
+        }
+
+        var resourceCommand = await ExecuteReadOnlyCommandAsync(
+            client,
+            RouterOsReadOnlyCommandCatalog.Resource,
+            cancellationToken);
+
+        if (!resourceCommand.IsSuccess)
+        {
+            return CreateRequiredCommandFailure(
+                resourceCommand,
+                "Не удалось прочитать сведения RouterOS.",
+                fingerprint,
+                algorithm);
+        }
+
+        var identity = RouterOsSshOutputParser.ParseIdentity(identityCommand.Output);
+        var resource = RouterOsSshOutputParser.ParseResource(resourceCommand.Output);
+
+        if (string.IsNullOrWhiteSpace(identity)
+            || string.IsNullOrWhiteSpace(resource.Version))
+        {
+            return CreateResult(
+                DeviceConnectionStatus.ProtocolError,
+                "RouterOS вернул неполные обязательные сведения об устройстве.",
+                fingerprint,
+                algorithm);
+        }
+
+        var warnings = new List<string>();
+        var boardName = resource.BoardName;
+        IReadOnlyList<DeviceInterfaceDto> interfaces = [];
+
+        var routerBoardCommand = await ExecuteReadOnlyCommandAsync(
+            client,
+            RouterOsReadOnlyCommandCatalog.RouterBoard,
+            cancellationToken);
+
+        if (routerBoardCommand.IsSuccess)
+        {
+            boardName = RouterOsSshOutputParser.ParseBoardName(routerBoardCommand.Output)
+                ?? boardName;
+
+            if (string.IsNullOrWhiteSpace(boardName))
+            {
+                warnings.Add("Модель RouterBOARD не распознана.");
+            }
+        }
+        else
+        {
+            warnings.Add(routerBoardCommand.IsPermissionDenied
+                ? "Недостаточно прав для чтения RouterBOARD."
+                : "Сведения RouterBOARD недоступны.");
+        }
+
+        var interfacesCommand = await ExecuteReadOnlyCommandAsync(
+            client,
+            RouterOsReadOnlyCommandCatalog.Interfaces,
+            cancellationToken);
+
+        if (interfacesCommand.IsSuccess)
+        {
+            interfaces = RouterOsSshOutputParser.ParseInterfaces(interfacesCommand.Output);
+
+            if (interfaces.Count == 0)
+            {
+                warnings.Add("Список интерфейсов не удалось распознать.");
+            }
+        }
+        else
+        {
+            warnings.Add(interfacesCommand.IsPermissionDenied
+                ? "Недостаточно прав для чтения интерфейсов."
+                : "Список интерфейсов недоступен.");
+        }
+
+        var status = warnings.Count == 0
+            ? DeviceConnectionStatus.Success
+            : DeviceConnectionStatus.PartialSuccess;
+        var message = warnings.Count == 0
+            ? "SSH-подключение успешно. Информация RouterOS прочитана в режиме read-only."
+            : $"SSH-подключение успешно. Получены частичные данные: {string.Join(" ", warnings)}";
+        var deviceInfo = new DeviceInfoDto(
+            Identity: identity,
+            RouterOsVersion: resource.Version,
+            BoardName: string.IsNullOrWhiteSpace(boardName) ? "Неизвестно" : boardName,
+            Uptime: resource.Uptime,
+            Interfaces: interfaces);
+
+        return new DeviceConnectionResultDto(
+            status,
+            message,
+            deviceInfo,
+            HostKeyFingerprint: FormatFingerprint(fingerprint),
+            HostKeyAlgorithm: algorithm);
+    }
+
+    private static async Task<ReadOnlyCommandResult> ExecuteReadOnlyCommandAsync(
+        SshClient client,
+        string commandText,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var command = client.CreateCommand(commandText);
+            command.CommandTimeout = CommandTimeout;
+            await command.ExecuteAsync(cancellationToken);
+
+            var output = command.Result ?? string.Empty;
+            var error = command.Error ?? string.Empty;
+            var isPermissionDenied = ContainsPermissionDenied(output)
+                || ContainsPermissionDenied(error);
+            var hasFailed = isPermissionDenied
+                || command.ExitStatus is not null and not 0
+                || !string.IsNullOrWhiteSpace(error);
+
+            return new ReadOnlyCommandResult(
+                IsSuccess: !hasFailed,
+                IsPermissionDenied: isPermissionDenied,
+                IsTimedOut: false,
+                Output: output);
+        }
+        catch (SshOperationTimeoutException)
+        {
+            return new ReadOnlyCommandResult(false, false, true, string.Empty);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (SshException)
+        {
+            return new ReadOnlyCommandResult(false, false, false, string.Empty);
+        }
+    }
+
+    private static DeviceConnectionResultDto CreateRequiredCommandFailure(
+        ReadOnlyCommandResult commandResult,
+        string message,
+        string? fingerprint,
+        string? algorithm)
+    {
+        return CreateResult(
+            commandResult.IsTimedOut
+                ? DeviceConnectionStatus.Timeout
+                : commandResult.IsPermissionDenied
+                    ? DeviceConnectionStatus.PermissionDenied
+                    : DeviceConnectionStatus.ProtocolError,
+            commandResult.IsTimedOut
+                ? "Превышено время ожидания read-only команды RouterOS."
+                : commandResult.IsPermissionDenied
+                    ? "Недостаточно прав для чтения обязательных сведений RouterOS."
+                    : message,
+            fingerprint,
+            algorithm);
+    }
+
+    private static bool ContainsPermissionDenied(string value)
+    {
+        return value.Contains("permission denied", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("not enough permissions", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("not permitted", StringComparison.OrdinalIgnoreCase);
     }
 
     private static DeviceConnectionResultDto MapConnectionError(
@@ -228,4 +412,10 @@ public sealed class SshDeviceConnectionService : IDeviceConnectionService
         var normalizedFingerprint = NormalizeFingerprint(fingerprint);
         return normalizedFingerprint is null ? null : $"SHA256:{normalizedFingerprint}";
     }
+
+    private sealed record ReadOnlyCommandResult(
+        bool IsSuccess,
+        bool IsPermissionDenied,
+        bool IsTimedOut,
+        string Output);
 }

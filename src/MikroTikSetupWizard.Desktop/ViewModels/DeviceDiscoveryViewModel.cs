@@ -122,8 +122,16 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     public DeviceInfoDto? DeviceInfo
     {
         get => _deviceInfo;
-        private set => SetProperty(ref _deviceInfo, value);
+        private set
+        {
+            if (SetProperty(ref _deviceInfo, value))
+            {
+                OnPropertyChanged(nameof(HasDeviceInfo));
+            }
+        }
     }
+
+    public bool HasDeviceInfo => DeviceInfo is not null;
 
     public bool IsConnectionFormVisible
     {
