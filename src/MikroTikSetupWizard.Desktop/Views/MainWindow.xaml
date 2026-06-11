@@ -1305,7 +1305,6 @@
                         <Button Grid.Column="1"
                                 Content="Найти MikroTik рядом"
                                 Command="{Binding FindDevicesCommand}"
-                                Style="{StaticResource PrimaryButtonStyle}"
                                 VerticalAlignment="Center" />
                     </Grid>
                 </Border>
