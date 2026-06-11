@@ -1,5 +1,6 @@
 using System.Net;
 using System.Windows.Input;
+using MikroTikSetupWizard.Application.Connections;
 using MikroTikSetupWizard.Application.Discovery;
 
 namespace MikroTikSetupWizard.Desktop.ViewModels;
@@ -20,6 +21,11 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private string _manualIpAddress = string.Empty;
     private string _statusMessage = "Введите IPv4 адрес и нажмите \"Добавить по IP\".";
     private bool _isDiscoveryInProgress;
+    private string _connectionIp = string.Empty;
+    private string _connectionLogin = "admin";
+    private string _connectionStatusMessage = string.Empty;
+    private DeviceInfoDto? _deviceInfo;
+    private bool _isConnectionFormVisible;
 
     public DeviceDiscoveryViewModel(
         IDeviceDiscoveryService deviceDiscoveryService,
@@ -31,11 +37,17 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             async _ => await FindNearbyDevicesAsync(),
             _ => !IsDiscoveryInProgress);
         AddManualDeviceCommand = new RelayCommand(async _ => await AddManualDeviceAsync());
+        OpenConnectionFormCommand = new RelayCommand(OpenConnectionForm);
+        ConnectToDeviceCommand = new RelayCommand(_ => ShowConnectionPlaceholder());
     }
 
     public ICommand FindDevicesCommand { get; }
 
     public ICommand AddManualDeviceCommand { get; }
+
+    public ICommand OpenConnectionFormCommand { get; }
+
+    public ICommand ConnectToDeviceCommand { get; }
 
     public string ManualIpAddress
     {
@@ -64,6 +76,38 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     {
         get => _selectedDevice;
         set => SetProperty(ref _selectedDevice, value);
+    }
+
+    public string ConnectionIp
+    {
+        get => _connectionIp;
+        set => SetProperty(ref _connectionIp, value);
+    }
+
+    public string ConnectionLogin
+    {
+        get => _connectionLogin;
+        set => SetProperty(ref _connectionLogin, value);
+    }
+
+    public string ConnectionMethodDisplay => "SSH read-only";
+
+    public string ConnectionStatusMessage
+    {
+        get => _connectionStatusMessage;
+        private set => SetProperty(ref _connectionStatusMessage, value);
+    }
+
+    public DeviceInfoDto? DeviceInfo
+    {
+        get => _deviceInfo;
+        private set => SetProperty(ref _deviceInfo, value);
+    }
+
+    public bool IsConnectionFormVisible
+    {
+        get => _isConnectionFormVisible;
+        private set => SetProperty(ref _isConnectionFormVisible, value);
     }
 
     public IReadOnlyList<string> Recommendations
@@ -152,6 +196,27 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         {
             StatusMessage = exception.Message;
         }
+    }
+
+    private void OpenConnectionForm(object? parameter)
+    {
+        if (parameter is not DeviceDiscoveryResultDto device
+            || string.IsNullOrWhiteSpace(device.IpAddress))
+        {
+            StatusMessage = "Для подключения требуется IP-адрес устройства.";
+            return;
+        }
+
+        SelectedDevice = device;
+        ConnectionIp = device.IpAddress;
+        DeviceInfo = null;
+        ConnectionStatusMessage = "Форма подготовлена. Реальное SSH-подключение пока не выполняется.";
+        IsConnectionFormVisible = true;
+    }
+
+    private void ShowConnectionPlaceholder()
+    {
+        ConnectionStatusMessage = "Подключение к устройству будет добавлено на следующем этапе.";
     }
 
     private static bool IsValidIpv4(string value)
