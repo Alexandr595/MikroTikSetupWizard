@@ -1,6 +1,7 @@
 using System.Net;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Connections;
+using MikroTikSetupWizard.Application.Diagnostics;
 using MikroTikSetupWizard.Application.Discovery;
 
 namespace MikroTikSetupWizard.Desktop.ViewModels;
@@ -10,6 +11,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private readonly IDeviceDiscoveryService _deviceDiscoveryService;
     private readonly IDeviceManualDiscoveryService _manualDiscoveryService;
     private readonly IDeviceConnectionService _deviceConnectionService;
+    private readonly IDeviceDiagnosticsService _deviceDiagnosticsService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
     private IReadOnlyList<string> _recommendations =
     [
@@ -32,15 +34,20 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private string? _hostKeyAlgorithm;
     private bool _isHostKeyConfirmationRequired;
     private bool _isConnectionInProgress;
+    private DeviceDiagnosticsResultDto? _diagnosticsResult;
+    private bool _isDiagnosticsInProgress;
+    private string _diagnosticsStatusMessage = string.Empty;
 
     public DeviceDiscoveryViewModel(
         IDeviceDiscoveryService deviceDiscoveryService,
         IDeviceManualDiscoveryService manualDiscoveryService,
-        IDeviceConnectionService deviceConnectionService)
+        IDeviceConnectionService deviceConnectionService,
+        IDeviceDiagnosticsService deviceDiagnosticsService)
     {
         _deviceDiscoveryService = deviceDiscoveryService;
         _manualDiscoveryService = manualDiscoveryService;
         _deviceConnectionService = deviceConnectionService;
+        _deviceDiagnosticsService = deviceDiagnosticsService;
         FindDevicesCommand = new RelayCommand(
             async _ => await FindNearbyDevicesAsync(),
             _ => !IsDiscoveryInProgress);
@@ -52,6 +59,9 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         TrustHostKeyCommand = new RelayCommand(
             async _ => await TrustHostKeyAndConnectAsync(),
             _ => IsHostKeyConfirmationRequired && !IsConnectionInProgress);
+        RunDeviceDiagnosticsCommand = new RelayCommand(
+            async parameter => await RunDeviceDiagnosticsAsync(parameter),
+            _ => !IsDiagnosticsInProgress);
     }
 
     public ICommand FindDevicesCommand { get; }
@@ -63,6 +73,8 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     public ICommand ConnectToDeviceCommand { get; }
 
     public ICommand TrustHostKeyCommand { get; }
+
+    public ICommand RunDeviceDiagnosticsCommand { get; }
 
     public string ManualIpAddress
     {
@@ -90,7 +102,49 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     public DeviceDiscoveryResultDto? SelectedDevice
     {
         get => _selectedDevice;
-        set => SetProperty(ref _selectedDevice, value);
+        set
+        {
+            if (!SetProperty(ref _selectedDevice, value))
+            {
+                return;
+            }
+
+            DiagnosticsResult = null;
+            DiagnosticsStatusMessage = string.Empty;
+        }
+    }
+
+    public DeviceDiagnosticsResultDto? DiagnosticsResult
+    {
+        get => _diagnosticsResult;
+        private set
+        {
+            if (SetProperty(ref _diagnosticsResult, value))
+            {
+                OnPropertyChanged(nameof(HasDiagnosticsResult));
+            }
+        }
+    }
+
+    public bool HasDiagnosticsResult => DiagnosticsResult is not null;
+
+    public bool IsDiagnosticsInProgress
+    {
+        get => _isDiagnosticsInProgress;
+        private set
+        {
+            if (SetProperty(ref _isDiagnosticsInProgress, value)
+                && RunDeviceDiagnosticsCommand is RelayCommand diagnosticsCommand)
+            {
+                diagnosticsCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string DiagnosticsStatusMessage
+    {
+        get => _diagnosticsStatusMessage;
+        private set => SetProperty(ref _diagnosticsStatusMessage, value);
     }
 
     public string ConnectionIp
@@ -377,6 +431,57 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         {
             ConnectionPassword = string.Empty;
             IsConnectionInProgress = false;
+        }
+    }
+
+    private async Task RunDeviceDiagnosticsAsync(object? parameter)
+    {
+        if (IsDiagnosticsInProgress)
+        {
+            return;
+        }
+
+        var device = parameter as DeviceDiscoveryResultDto ?? SelectedDevice;
+
+        if (device is null || !IsValidIpv4(device.IpAddress ?? string.Empty))
+        {
+            DiagnosticsResult = null;
+            DiagnosticsStatusMessage = "Для диагностики требуется корректный IPv4-адрес устройства.";
+            return;
+        }
+
+        SelectedDevice = device;
+        IsDiagnosticsInProgress = true;
+        DiagnosticsStatusMessage = "Выполняется диагностика сетевых сервисов...";
+
+        try
+        {
+            var knownDeviceInfo = string.Equals(
+                ConnectionIp,
+                device.IpAddress,
+                StringComparison.OrdinalIgnoreCase)
+                ? DeviceInfo
+                : null;
+
+            DiagnosticsResult = await _deviceDiagnosticsService.DiagnoseAsync(
+                new DeviceDiagnosticsRequestDto(
+                    device.Identity,
+                    device.IpAddress!,
+                    device.MacAddress,
+                    knownDeviceInfo?.BoardName,
+                    knownDeviceInfo?.RouterOsVersion ?? device.RouterOsVersion,
+                    device.DiscoveryMethod));
+
+            DiagnosticsStatusMessage = "Диагностика завершена.";
+        }
+        catch (Exception)
+        {
+            DiagnosticsResult = null;
+            DiagnosticsStatusMessage = "Не удалось выполнить диагностику. Проверьте сетевой адаптер, адрес устройства и правила Windows Firewall.";
+        }
+        finally
+        {
+            IsDiagnosticsInProgress = false;
         }
     }
 

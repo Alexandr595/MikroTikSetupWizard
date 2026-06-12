@@ -1272,6 +1272,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
@@ -1469,12 +1470,17 @@
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
-                                            <Button Content="Подключиться"
-                                                    Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource SecondaryButtonStyle}"
-                                                    HorizontalAlignment="Left"
-                                                    Margin="0,10,0,0" />
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,10,0,0">
+                                                <Button Content="Проверить сервисы"
+                                                        Command="{Binding DataContext.RunDeviceDiagnosticsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"
+                                                        Margin="0,0,10,0" />
+                                                <Button Content="Подключиться"
+                                                        Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource SecondaryButtonStyle}" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
@@ -1484,6 +1490,233 @@
                 </Border>
 
                 <Border Grid.Row="3"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="22"
+                        Margin="0,0,0,16">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24"
+                                          ShadowDepth="0"
+                                          Opacity="0.14"
+                                          Color="#000000" />
+                    </Border.Effect>
+
+                    <StackPanel>
+                        <TextBlock Text="Диагностика устройства"
+                                   Style="{StaticResource SectionTitleStyle}"
+                                   Margin="0,0,0,8" />
+                        <TextBlock Text="Проверяются только ping и фиксированный список TCP-портов: WinBox, SSH, API, API-SSL, HTTP и HTTPS. Авторизация и команды RouterOS не выполняются."
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10" />
+                        <TextBlock Text="{Binding DiagnosticsStatusMessage}"
+                                   Foreground="{DynamicResource MutedTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10" />
+
+                        <Grid Visibility="{Binding HasDiagnosticsResult, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0"
+                                    Background="{DynamicResource InputBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="14"
+                                    Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="Identity:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,6" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding DiagnosticsResult.Identity}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,22,6" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="IP:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,6" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding DiagnosticsResult.IpAddress}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,6" />
+
+                                    <TextBlock Grid.Row="1"
+                                               Text="MAC:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,6" />
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="1"
+                                               Text="{Binding DiagnosticsResult.MacAddress}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,22,6" />
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="2"
+                                               Text="Board:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,6" />
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="3"
+                                               Text="{Binding DiagnosticsResult.BoardName}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,6" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="RouterOS:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,0" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="{Binding DiagnosticsResult.RouterOsVersion}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,22,0" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="2"
+                                               Text="Метод:"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               Margin="0,0,10,0" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="3"
+                                               Text="{Binding DiagnosticsResult.DiscoveryMethod}"
+                                               TextWrapping="Wrap" />
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="1"
+                                    Background="{DynamicResource InputBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12"
+                                    Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Ping"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1"
+                                               FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Text" Value="Не удалось определить" />
+                                                <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DiagnosticsResult.Ping.Status}" Value="Open">
+                                                        <Setter Property="Text" Value="Отвечает" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DiagnosticsResult.Ping.Status}" Value="Timeout">
+                                                        <Setter Property="Text" Value="Timeout" />
+                                                        <Setter Property="Foreground" Value="#E7C875" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding DiagnosticsResult.Ping.Details}"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               TextWrapping="Wrap" />
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl Grid.Row="2"
+                                          ItemsSource="{Binding DiagnosticsResult.Services}"
+                                          Margin="0,0,0,12">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource InputBackgroundBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="10"
+                                                Padding="12"
+                                                Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="110" />
+                                                    <ColumnDefinition Width="70" />
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding Port}"
+                                                           Foreground="{DynamicResource MutedTextBrush}" />
+                                                <TextBlock Grid.Column="2"
+                                                           FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="{x:Type TextBlock}">
+                                                            <Setter Property="Text" Value="Не удалось определить" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Open">
+                                                                    <Setter Property="Text" Value="Открыт" />
+                                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Closed">
+                                                                    <Setter Property="Text" Value="Закрыт" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Timeout">
+                                                                    <Setter Property="Text" Value="Timeout" />
+                                                                    <Setter Property="Foreground" Value="#E7C875" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="3"
+                                                           Text="{Binding Details}"
+                                                           Foreground="{DynamicResource MutedTextBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Grid.Row="3">
+                                <TextBlock Text="Рекомендации по результатам"
+                                           FontWeight="SemiBold"
+                                           Margin="0,0,0,8" />
+                                <ItemsControl ItemsSource="{Binding DiagnosticsResult.Recommendations}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"
+                                                       Foreground="{DynamicResource MutedTextBrush}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,0,0,5" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="4"
                         Background="{DynamicResource PanelBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
@@ -1738,7 +1971,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="4"
+                <Border Grid.Row="5"
                         Background="{DynamicResource PanelBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
