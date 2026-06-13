@@ -1390,7 +1390,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
@@ -1403,42 +1403,21 @@
                                    Visibility="{Binding HasNoDevices, Converter={StaticResource BooleanToVisibilityConverter}}"
                                    Margin="0,0,0,10" />
 
-                        <ListBox Grid.Row="2"
-                                 ItemsSource="{Binding DeviceCards}"
-                                 SelectedValuePath="Device"
-                                 SelectedValue="{Binding SelectedDevice}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 Padding="0"
-                                 MaxHeight="600"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListBoxItem}">
-                                    <Setter Property="Padding" Value="0" />
-                                    <Setter Property="Margin" Value="0,0,0,10" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    <Setter Property="Background" Value="Transparent" />
-                                    <Setter Property="BorderThickness" Value="0" />
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                <Border Background="{TemplateBinding Background}">
-                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
+                        <ItemsControl Grid.Row="2"
+                                      ItemsSource="{Binding DeviceCards}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource InputBackgroundBrush}"
                                             BorderBrush="{DynamicResource BorderBrush}"
                                             BorderThickness="1"
                                             CornerRadius="12"
-                                            Padding="16">
+                                            Padding="16"
+                                            Margin="0,0,0,10">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -1562,19 +1541,19 @@
                                                         Orientation="Horizontal"
                                                         Margin="0,14,0,0">
                                                 <Button Content="Проверить сервисы"
-                                                        Command="{Binding DataContext.RunDeviceDiagnosticsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        Command="{Binding DataContext.RunDeviceDiagnosticsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Device}"
                                                         Margin="0,0,10,0" />
                                                 <Button Content="Подключиться"
-                                                        Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Device}"
                                                         Style="{StaticResource SecondaryButtonStyle}" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </Grid>
                 </Border>
 
