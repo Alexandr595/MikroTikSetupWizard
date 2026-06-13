@@ -329,13 +329,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             var device = await _manualDiscoveryService.DiscoverAsync(
                 new ManualDeviceDiscoveryRequestDto(ipAddress));
 
-            Devices = Devices
-                .Where(existingDevice => !string.Equals(
-                    existingDevice.IpAddress,
-                    device.IpAddress,
-                    StringComparison.OrdinalIgnoreCase))
-                .Append(device)
-                .ToArray();
+            Devices = MergeDevices(Devices, [device]);
 
             SelectedDevice = device;
             StatusMessage = $"IP {device.IpAddress} проверен. Статус: {device.ReachabilityStatus}.";
@@ -505,22 +499,29 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         IReadOnlyList<DeviceDiscoveryResultDto> existingDevices,
         IReadOnlyList<DeviceDiscoveryResultDto> newDevices)
     {
-        var mergedDevices = existingDevices.ToList();
+        var latestDevices = new List<DeviceDiscoveryResultDto>();
 
         foreach (var device in newDevices)
         {
-            var existingIndex = mergedDevices.FindIndex(existingDevice => IsSameDevice(existingDevice, device));
+            var duplicateIndex = latestDevices.FindIndex(
+                existingDevice => IsSameDevice(existingDevice, device));
 
-            if (existingIndex >= 0)
+            if (duplicateIndex >= 0)
             {
-                mergedDevices[existingIndex] = device;
+                latestDevices[duplicateIndex] = device;
                 continue;
             }
 
-            mergedDevices.Add(device);
+            latestDevices.Add(device);
         }
 
-        return mergedDevices.ToArray();
+        var history = existingDevices.Where(
+            existingDevice => !latestDevices.Any(
+                latestDevice => IsSameDevice(existingDevice, latestDevice)));
+
+        return latestDevices
+            .Concat(history)
+            .ToArray();
     }
 
     private static bool IsSameDevice(
