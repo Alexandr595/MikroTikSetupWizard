@@ -316,9 +316,9 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     {
         var ipAddress = ManualIpAddress.Trim();
 
-        if (!IsValidIpv4(ipAddress))
+        if (!StrictIpv4AddressParser.TryParse(ipAddress, out _))
         {
-            StatusMessage = "Укажите корректный IPv4 адрес.";
+            StatusMessage = "Введите IP в формате 192.168.1.1 без ведущих нулей.";
             return;
         }
 

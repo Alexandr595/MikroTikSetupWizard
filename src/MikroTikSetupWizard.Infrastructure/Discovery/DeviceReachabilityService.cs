@@ -15,9 +15,7 @@ public sealed class DeviceReachabilityService : IDeviceReachabilityService
         DeviceDiscoveryResultDto device,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(device.IpAddress)
-            || !IPAddress.TryParse(device.IpAddress, out var ipAddress)
-            || ipAddress.AddressFamily != AddressFamily.InterNetwork)
+        if (!StrictIpv4AddressParser.TryParse(device.IpAddress, out var ipAddress))
         {
             return device with
             {

@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Sockets;
 using MikroTikSetupWizard.Application.Discovery;
 
 namespace MikroTikSetupWizard.Infrastructure.Discovery;
@@ -19,10 +17,11 @@ public sealed class ManualDeviceDiscoveryService : IDeviceManualDiscoveryService
     {
         var ipAddress = request.IpAddress.Trim();
 
-        if (!IPAddress.TryParse(ipAddress, out var parsedIpAddress)
-            || parsedIpAddress.AddressFamily != AddressFamily.InterNetwork)
+        if (!StrictIpv4AddressParser.TryParse(ipAddress, out var parsedIpAddress))
         {
-            throw new ArgumentException("Укажите корректный IPv4 адрес.", nameof(request));
+            throw new ArgumentException(
+                "Введите IP в формате 192.168.1.1 без ведущих нулей.",
+                nameof(request));
         }
 
         var device = new DeviceDiscoveryResultDto(
