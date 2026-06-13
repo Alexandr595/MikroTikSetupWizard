@@ -13,6 +13,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private readonly IDeviceConnectionService _deviceConnectionService;
     private readonly IDeviceDiagnosticsService _deviceDiagnosticsService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
+    private IReadOnlyList<DeviceDiscoveryCardViewModel> _deviceCards = [];
     private IReadOnlyList<string> _recommendations =
     [
         "MNDP ищет MikroTik только рядом, в одной L2-сети. Он не сканирует подсети и не проходит через роутеры/VLAN.",
@@ -91,8 +92,15 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(HasDevices));
                 OnPropertyChanged(nameof(HasNoDevices));
+                RefreshDeviceCards();
             }
         }
+    }
+
+    public IReadOnlyList<DeviceDiscoveryCardViewModel> DeviceCards
+    {
+        get => _deviceCards;
+        private set => SetProperty(ref _deviceCards, value);
     }
 
     public bool HasDevices => Devices.Count > 0;
@@ -122,6 +130,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             if (SetProperty(ref _diagnosticsResult, value))
             {
                 OnPropertyChanged(nameof(HasDiagnosticsResult));
+                RefreshDeviceCards();
             }
         }
     }
@@ -181,6 +190,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             if (SetProperty(ref _deviceInfo, value))
             {
                 OnPropertyChanged(nameof(HasDeviceInfo));
+                RefreshDeviceCards();
             }
         }
     }
@@ -530,4 +540,123 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         return !string.IsNullOrWhiteSpace(value)
             && !string.Equals(value, "Неизвестно", StringComparison.OrdinalIgnoreCase);
     }
+
+    private void RefreshDeviceCards()
+    {
+        DeviceCards = Devices
+            .Select(CreateDeviceCard)
+            .ToArray();
+    }
+
+    private DeviceDiscoveryCardViewModel CreateDeviceCard(DeviceDiscoveryResultDto device)
+    {
+        var hasConnectedInfo = IsSameIpAddress(device.IpAddress, ConnectionIp)
+            && DeviceInfo is not null;
+        var hasDiagnostics = IsSameIpAddress(device.IpAddress, DiagnosticsResult?.IpAddress)
+            && DiagnosticsResult is not null;
+
+        var identity = FirstKnown(
+            hasDiagnostics ? DiagnosticsResult?.Identity : null,
+            hasConnectedInfo ? DeviceInfo?.Identity : null,
+            device.Identity);
+        var ipAddress = NormalizeDisplayValue(device.IpAddress);
+        var boardName = FirstKnown(
+            hasDiagnostics ? DiagnosticsResult?.BoardName : null,
+            hasConnectedInfo ? DeviceInfo?.BoardName : null);
+        var routerOsVersion = FirstKnown(
+            hasDiagnostics ? DiagnosticsResult?.RouterOsVersion : null,
+            hasConnectedInfo ? DeviceInfo?.RouterOsVersion : null,
+            device.RouterOsVersion);
+
+        return new DeviceDiscoveryCardViewModel(
+            device,
+            IsDisplayValueKnown(identity) ? identity : ipAddress,
+            identity,
+            ipAddress,
+            NormalizeDisplayValue(device.MacAddress),
+            boardName,
+            routerOsVersion,
+            NormalizeDisplayValue(device.InterfaceName),
+            FormatDiscoveryMethod(device.DiscoveryMethod),
+            FormatDeviceStatus(device.DiscoveryMethod, hasConnectedInfo, hasDiagnostics));
+    }
+
+    private static string FormatDeviceStatus(
+        string discoveryMethod,
+        bool hasConnectedInfo,
+        bool hasDiagnostics)
+    {
+        if (hasDiagnostics)
+        {
+            return "Диагностика выполнена";
+        }
+
+        if (hasConnectedInfo)
+        {
+            return "Подключение успешно";
+        }
+
+        return IsNeighborDiscovery(discoveryMethod)
+            ? "Найден через MNDP"
+            : string.Equals(discoveryMethod, "Manual", StringComparison.OrdinalIgnoreCase)
+                ? "Добавлен вручную"
+                : "Статус неизвестен";
+    }
+
+    private static string FormatDiscoveryMethod(string discoveryMethod)
+    {
+        if (IsNeighborDiscovery(discoveryMethod))
+        {
+            return "MNDP";
+        }
+
+        return string.Equals(discoveryMethod, "Manual", StringComparison.OrdinalIgnoreCase)
+            ? "Manual"
+            : NormalizeDisplayValue(discoveryMethod);
+    }
+
+    private static bool IsNeighborDiscovery(string discoveryMethod)
+    {
+        return string.Equals(
+                discoveryMethod,
+                "NeighborDiscovery",
+                StringComparison.OrdinalIgnoreCase)
+            || string.Equals(discoveryMethod, "MNDP", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSameIpAddress(string? first, string? second)
+    {
+        return IsDisplayValueKnown(first)
+            && IsDisplayValueKnown(second)
+            && string.Equals(first, second, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string FirstKnown(params string?[] values)
+    {
+        return values.FirstOrDefault(IsDisplayValueKnown)?.Trim() ?? "Неизвестно";
+    }
+
+    private static string NormalizeDisplayValue(string? value)
+    {
+        return IsDisplayValueKnown(value) ? value!.Trim() : "Неизвестно";
+    }
+
+    private static bool IsDisplayValueKnown(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && !string.Equals(value, "Неизвестно", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(value, "Unknown", StringComparison.OrdinalIgnoreCase);
+    }
 }
+
+public sealed record DeviceDiscoveryCardViewModel(
+    DeviceDiscoveryResultDto Device,
+    string Title,
+    string Identity,
+    string IpAddress,
+    string MacAddress,
+    string BoardName,
+    string RouterOsVersion,
+    string InterfaceName,
+    string DiscoveryMethod,
+    string Status);

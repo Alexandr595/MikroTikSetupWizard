@@ -1406,8 +1406,9 @@
                                    Margin="0,0,0,10" />
 
                         <ListBox Grid.Row="2"
-                                 ItemsSource="{Binding Devices}"
-                                 SelectedItem="{Binding SelectedDevice}"
+                                 ItemsSource="{Binding DeviceCards}"
+                                 SelectedValuePath="Device"
+                                 SelectedValue="{Binding SelectedDevice}"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Padding="0"
@@ -1437,51 +1438,140 @@
                                     <Border Background="{DynamicResource InputBackgroundBrush}"
                                             BorderBrush="{DynamicResource BorderBrush}"
                                             BorderThickness="1"
-                                            CornerRadius="10"
-                                            Padding="14">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding IpAddress}"
-                                                       FontSize="16"
-                                                       FontWeight="SemiBold"
-                                                       TextWrapping="Wrap" />
-                                            <TextBlock Text="Статус"
-                                                       Foreground="{DynamicResource MutedTextBrush}"
-                                                       FontSize="12"
-                                                       Margin="0,8,0,0" />
-                                            <TextBlock Text="{Binding ReachabilityStatus}"
-                                                       Foreground="{DynamicResource TextBrush}"
-                                                       FontWeight="SemiBold"
-                                                       TextWrapping="Wrap" />
-                                            <TextBlock Text="Метод обнаружения"
-                                               Foreground="{DynamicResource MutedTextBrush}"
-                                                       FontSize="12"
-                                                       Margin="0,4,0,0" />
-                                            <TextBlock Text="{Binding DiscoveryMethod}"
-                                                       Foreground="{DynamicResource MutedTextBrush}"
-                                                       TextWrapping="Wrap" />
-                                            <ItemsControl ItemsSource="{Binding Notes}"
-                                                          Margin="0,10,0,0">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding}"
+                                            CornerRadius="12"
+                                            Padding="16">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Grid.Row="0"
+                                                  Margin="0,0,0,14">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="18"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,14,0" />
+
+                                                <Border Grid.Column="1"
+                                                        Background="#223A52"
+                                                        BorderBrush="#385D82"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="9,4"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Status}"
+                                                               Foreground="#A9D4FF"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold" />
+                                                </Border>
+                                            </Grid>
+
+                                            <Grid Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Grid.Column="0"
+                                                        Background="#12161E"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10"
+                                                        Padding="12"
+                                                        Margin="0,0,6,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Устройство"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="0,0,0,10" />
+
+                                                        <TextBlock Text="Identity"
                                                                    Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding Identity}"
                                                                    TextWrapping="Wrap"
-                                                                   Margin="0,0,0,4" />
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <StackPanel Orientation="Horizontal"
-                                                        Margin="0,10,0,0">
+                                                                   Margin="0,2,0,8" />
+
+                                                        <TextBlock Text="IP"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding IpAddress}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,8" />
+
+                                                        <TextBlock Text="MAC"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding MacAddress}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,0" />
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <Border Grid.Column="1"
+                                                        Background="#12161E"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10"
+                                                        Padding="12"
+                                                        Margin="6,0,0,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Система"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="0,0,0,10" />
+
+                                                        <TextBlock Text="Board / Platform"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding BoardName}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,8" />
+
+                                                        <TextBlock Text="RouterOS Version"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding RouterOsVersion}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,8" />
+
+                                                        <TextBlock Text="Интерфейс обнаружения"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding InterfaceName}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,8" />
+
+                                                        <TextBlock Text="Метод обнаружения"
+                                                                   Foreground="{DynamicResource MutedTextBrush}"
+                                                                   FontSize="12" />
+                                                        <TextBlock Text="{Binding DiscoveryMethod}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,0" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+
+                                            <StackPanel Grid.Row="2"
+                                                        Orientation="Horizontal"
+                                                        Margin="0,14,0,0">
                                                 <Button Content="Проверить сервисы"
                                                         Command="{Binding DataContext.RunDeviceDiagnosticsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}"
+                                                        CommandParameter="{Binding Device}"
                                                         Margin="0,0,10,0" />
                                                 <Button Content="Подключиться"
                                                         Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding}"
+                                                        CommandParameter="{Binding Device}"
                                                         Style="{StaticResource SecondaryButtonStyle}" />
                                             </StackPanel>
-                                        </StackPanel>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
