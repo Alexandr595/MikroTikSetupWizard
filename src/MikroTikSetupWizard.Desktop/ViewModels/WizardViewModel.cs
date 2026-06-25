@@ -61,6 +61,7 @@ public sealed class WizardViewModel : ObservableObject
         IDeviceDiscoveryService deviceDiscoveryService,
         IDeviceManualDiscoveryService manualDiscoveryService,
         IDeviceConnectionService deviceConnectionService,
+        IConnectionManager connectionManager,
         IDeviceDiagnosticsService deviceDiagnosticsService,
         ICurrentDeviceService currentDeviceService)
     {
@@ -80,6 +81,7 @@ public sealed class WizardViewModel : ObservableObject
             deviceDiscoveryService,
             manualDiscoveryService,
             deviceConnectionService,
+            connectionManager,
             deviceDiagnosticsService,
             currentDeviceService);
 

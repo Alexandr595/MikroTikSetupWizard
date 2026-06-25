@@ -12,6 +12,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private readonly IDeviceDiscoveryService _deviceDiscoveryService;
     private readonly IDeviceManualDiscoveryService _manualDiscoveryService;
     private readonly IDeviceConnectionService _deviceConnectionService;
+    private readonly IConnectionManager _connectionManager;
     private readonly IDeviceDiagnosticsService _deviceDiagnosticsService;
     private readonly ICurrentDeviceService _currentDeviceService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
@@ -37,6 +38,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private string? _hostKeyAlgorithm;
     private bool _isHostKeyConfirmationRequired;
     private bool _isConnectionInProgress;
+    private bool _allowInsecureApiTransport;
     private DeviceDiagnosticsResultDto? _diagnosticsResult;
     private bool _isDiagnosticsInProgress;
     private string _diagnosticsStatusMessage = string.Empty;
@@ -45,12 +47,14 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         IDeviceDiscoveryService deviceDiscoveryService,
         IDeviceManualDiscoveryService manualDiscoveryService,
         IDeviceConnectionService deviceConnectionService,
+        IConnectionManager connectionManager,
         IDeviceDiagnosticsService deviceDiagnosticsService,
         ICurrentDeviceService currentDeviceService)
     {
         _deviceDiscoveryService = deviceDiscoveryService;
         _manualDiscoveryService = manualDiscoveryService;
         _deviceConnectionService = deviceConnectionService;
+        _connectionManager = connectionManager;
         _deviceDiagnosticsService = deviceDiagnosticsService;
         _currentDeviceService = currentDeviceService;
         FindDevicesCommand = new RelayCommand(
@@ -60,6 +64,9 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         OpenConnectionFormCommand = new RelayCommand(OpenConnectionForm);
         ConnectToDeviceCommand = new RelayCommand(
             async _ => await ConnectToDeviceAsync(),
+            _ => !IsConnectionInProgress);
+        CheckLegacySshConnectionCommand = new RelayCommand(
+            async _ => await CheckLegacySshConnectionAsync(),
             _ => !IsConnectionInProgress);
         TrustHostKeyCommand = new RelayCommand(
             async _ => await TrustHostKeyAndConnectAsync(),
@@ -79,6 +86,8 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     public ICommand ConnectToDeviceCommand { get; }
 
     public ICommand TrustHostKeyCommand { get; }
+
+    public ICommand CheckLegacySshConnectionCommand { get; }
 
     public ICommand RunDeviceDiagnosticsCommand { get; }
 
@@ -175,12 +184,18 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         set => SetProperty(ref _connectionLogin, value);
     }
 
-    public string ConnectionMethodDisplay => "SSH read-only";
+    public string ConnectionMethodDisplay => "Автоматически: API-SSL 8729";
 
     public string ConnectionPassword
     {
         get => _connectionPassword;
         set => SetProperty(ref _connectionPassword, value);
+    }
+
+    public bool AllowInsecureApiTransport
+    {
+        get => _allowInsecureApiTransport;
+        set => SetProperty(ref _allowInsecureApiTransport, value);
     }
 
     public string ConnectionStatusMessage
@@ -256,6 +271,11 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             if (ConnectToDeviceCommand is RelayCommand connectCommand)
             {
                 connectCommand.RaiseCanExecuteChanged();
+            }
+
+            if (CheckLegacySshConnectionCommand is RelayCommand legacyCommand)
+            {
+                legacyCommand.RaiseCanExecuteChanged();
             }
 
             if (TrustHostKeyCommand is RelayCommand trustCommand)
@@ -363,7 +383,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         HostKeyFingerprint = null;
         HostKeyAlgorithm = null;
         IsHostKeyConfirmationRequired = false;
-        ConnectionStatusMessage = "Введите пароль и проверьте SSH-подключение.";
+        ConnectionStatusMessage = "Прямое подключение через API-SSL будет добавлено следующим этапом. Сейчас доступен экспорт .rsc или legacy SSH read-only в расширенном режиме.";
         IsConnectionFormVisible = true;
     }
 
@@ -401,6 +421,62 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         StatusMessage = $"Текущее устройство выбрано: {FormatDeviceTitle(device)}.";
     }
     private async Task ConnectToDeviceAsync()
+    {
+        if (IsConnectionInProgress)
+        {
+            return;
+        }
+
+        if (!IsValidIpv4(ConnectionIp))
+        {
+            ConnectionStatusMessage = "Укажите корректный IPv4 адрес.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ConnectionLogin))
+        {
+            ConnectionStatusMessage = "Укажите логин.";
+            return;
+        }
+
+        IsConnectionInProgress = true;
+        IsHostKeyConfirmationRequired = false;
+        HostKeyFingerprint = null;
+        HostKeyAlgorithm = null;
+        DeviceInfo = null;
+        ConnectionStatusMessage = "Определяем доступный транспорт подключения...";
+
+        try
+        {
+            var result = await _connectionManager.ConnectAsync(
+                new DeviceConnectionProfile
+                {
+                    IpAddress = ConnectionIp.Trim(),
+                    Login = ConnectionLogin.Trim(),
+                    Password = ConnectionPassword,
+                    Transport = DeviceConnectionTransport.Unknown,
+                    AllowInsecureTransport = AllowInsecureApiTransport,
+                    ExpectedIdentity = SelectedDevice?.Identity,
+                    ExpectedMac = SelectedDevice?.MacAddress
+                });
+
+            DeviceInfo = result.DeviceInfo;
+            ConnectionStatusMessage = result.Warnings.Count == 0
+                ? result.Message
+                : $"{result.Message} {string.Join(" ", result.Warnings)}";
+        }
+        catch
+        {
+            ConnectionStatusMessage = "Не удалось выполнить проверку подключения через Connection Manager.";
+        }
+        finally
+        {
+            ConnectionPassword = string.Empty;
+            IsConnectionInProgress = false;
+        }
+    }
+
+    private async Task CheckLegacySshConnectionAsync()
     {
         await CheckConnectionAsync(expectedHostKeyFingerprint: null);
     }

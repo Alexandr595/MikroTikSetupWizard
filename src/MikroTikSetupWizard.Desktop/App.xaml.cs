@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Windows;
+using MikroTikSetupWizard.Application.Connections;
 using MikroTikSetupWizard.Application.CurrentDevice;
 using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
@@ -22,6 +23,7 @@ public partial class App : System.Windows.Application
         var manualDiscoveryService = new ManualDeviceDiscoveryService(reachabilityService);
         var deviceDiscoveryService = new MndpDeviceDiscoveryService();
         var deviceConnectionService = new SshDeviceConnectionService();
+        var connectionManager = new ConnectionManager();
         var deviceDiagnosticsService = new DeviceDiagnosticsService();
         var currentDeviceService = new CurrentDeviceService();
 
@@ -35,6 +37,7 @@ public partial class App : System.Windows.Application
                 deviceDiscoveryService,
                 manualDiscoveryService,
                 deviceConnectionService,
+                connectionManager,
                 deviceDiagnosticsService,
                 currentDeviceService)
         };
