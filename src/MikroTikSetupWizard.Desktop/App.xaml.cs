@@ -1,6 +1,6 @@
 using System.Windows;
 using MikroTikSetupWizard.Application.Connections;
-using MikroTikSetupWizard.Application.CurrentDevice;
+using MikroTikSetupWizard.Application.DeviceContext;
 using MikroTikSetupWizard.Application.ModuleNavigation;
 using MikroTikSetupWizard.Application.Setup;
 using MikroTikSetupWizard.Application.SetupTasks;
@@ -25,7 +25,7 @@ public partial class App : System.Windows.Application
         var deviceConnectionService = new SshDeviceConnectionService();
         var connectionManager = new ConnectionManager();
         var deviceDiagnosticsService = new DeviceDiagnosticsService();
-        var currentDeviceService = new CurrentDeviceService();
+        var deviceContextService = new DeviceContextService();
 
         var window = new MainWindow
         {
@@ -39,7 +39,7 @@ public partial class App : System.Windows.Application
                 deviceConnectionService,
                 connectionManager,
                 deviceDiagnosticsService,
-                currentDeviceService)
+                deviceContextService)
         };
 
         window.Show();

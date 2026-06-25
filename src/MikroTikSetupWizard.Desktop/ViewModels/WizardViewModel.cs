@@ -2,7 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Connections;
-using MikroTikSetupWizard.Application.CurrentDevice;
+using MikroTikSetupWizard.Application.DeviceContext;
 using MikroTikSetupWizard.Application.Diagnostics;
 using MikroTikSetupWizard.Application.Discovery;
 using MikroTikSetupWizard.Application.ModuleNavigation;
@@ -18,7 +18,7 @@ public sealed class WizardViewModel : ObservableObject
     private readonly ISaveFileDialogService _saveFileDialogService;
     private readonly IModuleNavigationService _moduleNavigationService;
     private readonly ISetupTaskCatalogService _setupTaskCatalogService;
-    private readonly ICurrentDeviceService _currentDeviceService;
+    private readonly IDeviceContextService _deviceContextService;
 
     private bool _isHomeScreenVisible = true;
     private bool _isConfigureDeviceScreenVisible;
@@ -51,7 +51,7 @@ public sealed class WizardViewModel : ObservableObject
     private string _generatedRsc = string.Empty;
     private string _validationMessage = string.Empty;
     private string _statusMessage = "Готово к генерации.";
-    private CurrentDeviceDto? _currentDevice;
+    private DeviceContextDto? _currentDevice;
 
     public WizardViewModel(
         IMikroTikSetupWizardService setupWizardService,
@@ -63,15 +63,15 @@ public sealed class WizardViewModel : ObservableObject
         IDeviceConnectionService deviceConnectionService,
         IConnectionManager connectionManager,
         IDeviceDiagnosticsService deviceDiagnosticsService,
-        ICurrentDeviceService currentDeviceService)
+        IDeviceContextService deviceContextService)
     {
         _setupWizardService = setupWizardService;
         _saveFileDialogService = saveFileDialogService;
         _moduleNavigationService = moduleNavigationService;
         _setupTaskCatalogService = setupTaskCatalogService;
-        _currentDeviceService = currentDeviceService;
-        _currentDeviceService.CurrentDeviceChanged += OnCurrentDeviceChanged;
-        CurrentDevice = _currentDeviceService.Current;
+        _deviceContextService = deviceContextService;
+        _deviceContextService.DeviceContextChanged += OnDeviceContextChanged;
+        CurrentDevice = _deviceContextService.Current;
         OfficeRouterWizard = new OfficeRouterWizardViewModel(_setupWizardService, _saveFileDialogService);
         AccessPointWizard = new AccessPointWizardViewModel(
             new AccessPointConfigurationBuilder(),
@@ -83,13 +83,14 @@ public sealed class WizardViewModel : ObservableObject
             deviceConnectionService,
             connectionManager,
             deviceDiagnosticsService,
-            currentDeviceService);
+            deviceContextService);
 
         ShowHomeCommand = new RelayCommand(_ => ShowHome());
         ShowConfigureDeviceCommand = new RelayCommand(_ => ShowConfigureDevice());
         ShowDiagnosticsCommand = new RelayCommand(_ => ShowDiagnostics());
         ShowAdvancedModeCommand = new RelayCommand(_ => ShowAdvancedMode());
         OpenCurrentDeviceConnectionCommand = new RelayCommand(_ => OpenCurrentDeviceConnection(), _ => HasCurrentDevice);
+        ClearDeviceContextCommand = new RelayCommand(_ => ClearDeviceContext(), _ => HasCurrentDevice);
         OpenSetupTaskCommand = new RelayCommand(OpenSetupTask);
         ApplySmallOfficeProfileCommand = new RelayCommand(_ => ApplySmallOfficeProfile());
         GeneratePreviewCommand = new RelayCommand(_ => GeneratePreview());
@@ -142,6 +143,8 @@ public sealed class WizardViewModel : ObservableObject
 
     public ICommand OpenCurrentDeviceConnectionCommand { get; }
 
+    public ICommand ClearDeviceContextCommand { get; }
+
     public ICommand OpenSetupTaskCommand { get; }
 
     public OfficeRouterWizardViewModel OfficeRouterWizard { get; }
@@ -150,7 +153,7 @@ public sealed class WizardViewModel : ObservableObject
 
     public DeviceDiscoveryViewModel DeviceDiscovery { get; }
 
-    public CurrentDeviceDto? CurrentDevice
+    public DeviceContextDto? CurrentDevice
     {
         get => _currentDevice;
         private set
@@ -162,10 +165,21 @@ public sealed class WizardViewModel : ObservableObject
 
             OnPropertyChanged(nameof(HasCurrentDevice));
             OnPropertyChanged(nameof(HasNoCurrentDevice));
+            OnPropertyChanged(nameof(DeviceContext));
+            OnPropertyChanged(nameof(HasDeviceContext));
+            OnPropertyChanged(nameof(HasNoDeviceContext));
+            OnPropertyChanged(nameof(CurrentDeviceTitle));
+            OnPropertyChanged(nameof(CurrentDeviceStatus));
+            OnPropertyChanged(nameof(CurrentDeviceWizardMessage));
 
             if (OpenCurrentDeviceConnectionCommand is RelayCommand command)
             {
                 command.RaiseCanExecuteChanged();
+            }
+
+            if (ClearDeviceContextCommand is RelayCommand clearCommand)
+            {
+                clearCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -173,12 +187,49 @@ public sealed class WizardViewModel : ObservableObject
     public bool HasCurrentDevice => CurrentDevice is not null;
 
     public bool HasNoCurrentDevice => !HasCurrentDevice;
+
+    public DeviceContextDto? DeviceContext => CurrentDevice;
+
+    public bool HasDeviceContext => HasCurrentDevice;
+
+    public bool HasNoDeviceContext => !HasDeviceContext;
+
+    public string CurrentDeviceTitle => CurrentDevice is null
+        ? "\u041d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d\u043e"
+        : HasDisplayValue(CurrentDevice.Identity)
+            ? CurrentDevice.Identity
+            : CurrentDevice.IpAddress;
+
+    public string CurrentDeviceStatus
+    {
+        get
+        {
+            if (CurrentDevice is null)
+            {
+                return "\u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d\u043e";
+            }
+
+            if (CurrentDevice.IsAuthenticated || CurrentDevice.IsConnected)
+            {
+                return "\u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e";
+            }
+
+            if (CurrentDevice.DiagnosticsResult is not null)
+            {
+                return "\u0434\u0438\u0430\u0433\u043d\u043e\u0441\u0442\u0438\u043a\u0430 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0430";
+            }
+
+            return CurrentDevice.IsSelected ? "\u0433\u043e\u0442\u043e\u0432\u043e \u043a \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0435" : "\u0432\u044b\u0431\u0440\u0430\u043d\u043e";
+        }
+    }
+
+    public string CurrentDeviceWizardMessage => $"\u041d\u0430\u0441\u0442\u0440\u0430\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e: {CurrentDeviceTitle}";
+
     public IReadOnlyList<SetupTaskItemDto> SetupTasks
     {
         get => _setupTasks;
         private set => SetProperty(ref _setupTasks, value);
     }
-
     public bool IsHomeScreenVisible
     {
         get => _isHomeScreenVisible;
@@ -397,9 +448,9 @@ public sealed class WizardViewModel : ObservableObject
         ShowScreen(configureDevice: true);
     }
 
-    private void OnCurrentDeviceChanged(object? sender, EventArgs e)
+    private void OnDeviceContextChanged(object? sender, EventArgs e)
     {
-        CurrentDevice = _currentDeviceService.Current;
+        CurrentDevice = _deviceContextService.Current;
     }
 
     private void OpenCurrentDeviceConnection()
@@ -413,6 +464,18 @@ public sealed class WizardViewModel : ObservableObject
         ShowDiagnostics();
         DeviceDiscovery.OpenConnectionForm(CurrentDevice);
     }
+    private void ClearDeviceContext()
+    {
+        _deviceContextService.Clear();
+    }
+
+    private static bool HasDisplayValue(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && !string.Equals(value, "Unknown", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(value, "\u041d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e", StringComparison.OrdinalIgnoreCase);
+    }
+
     private void ShowDiagnostics()
     {
         ShowScreen(diagnostics: true);

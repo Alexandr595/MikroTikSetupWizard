@@ -212,7 +212,7 @@
                                        Foreground="{DynamicResource MutedTextBrush}"
                                        FontSize="12"
                                        FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding CurrentDevice.Identity}"
+                            <TextBlock Text="{Binding CurrentDeviceTitle}"
                                        FontSize="18"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource TextBrush}" />
@@ -221,6 +221,11 @@
                                            Foreground="{DynamicResource MutedTextBrush}"
                                            Margin="0,0,4,0" />
                                 <TextBlock Text="{Binding CurrentDevice.IpAddress}"
+                                           Margin="0,0,18,0" />
+                                <TextBlock Text="MAC:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDevice.MacAddress}"
                                            Margin="0,0,18,0" />
                                 <TextBlock Text="RouterOS:"
                                            Foreground="{DynamicResource MutedTextBrush}"
@@ -235,7 +240,12 @@
                                 <TextBlock Text="Метод:"
                                            Foreground="{DynamicResource MutedTextBrush}"
                                            Margin="0,0,4,0" />
-                                <TextBlock Text="{Binding CurrentDevice.DiscoveryMethod}" />
+                                <TextBlock Text="{Binding CurrentDevice.DiscoveryMethod}"
+                                           Margin="0,0,18,0" />
+                                <TextBlock Text="&#x0421;&#x0442;&#x0430;&#x0442;&#x0443;&#x0441;:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDeviceStatus}" />
                             </WrapPanel>
                         </StackPanel>
 
@@ -247,6 +257,10 @@
                                     Margin="0,0,10,0" />
                             <Button Content="Сменить"
                                     Command="{Binding ShowDiagnosticsCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="0,0,10,0" />
+                            <Button Content="&#x041E;&#x0447;&#x0438;&#x0441;&#x0442;&#x0438;&#x0442;&#x044C;"
+                                    Command="{Binding ClearDeviceContextCommand}"
                                     Style="{StaticResource SecondaryButtonStyle}" />
                         </StackPanel>
                     </Grid>
@@ -402,14 +416,20 @@
         </Grid>
 
         <Grid Grid.Row="1" Visibility="{Binding IsOfficeRouterWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Border MaxWidth="580"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"
+                    MaxWidth="580"
                   HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
+                  VerticalAlignment="Top"
                   Background="{DynamicResource PanelBackgroundBrush}"
                   BorderBrush="{DynamicResource BorderBrush}"
                   BorderThickness="1"
                   CornerRadius="18"
                   Padding="28"
+                  Margin="0,0,0,16"
                   Visibility="{Binding HasNoCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="Сначала выберите MikroTik"
@@ -424,8 +444,8 @@
                 </StackPanel>
             </Border>
 
-            <Grid DataContext="{Binding OfficeRouterWizard}"
-                  Visibility="{Binding DataContext.HasCurrentDevice, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid Grid.Row="1"
+                  DataContext="{Binding OfficeRouterWizard}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -449,6 +469,11 @@
                                    Style="{StaticResource TitleTextStyle}" />
                         <TextBlock Text="Пошаговый мастер настройки без лишних технических деталей. Генерация .rsc будет подключена на следующем этапе."
                                    Foreground="{DynamicResource MutedTextBrush}" />
+                        <TextBlock Text="{Binding DataContext.CurrentDeviceWizardMessage, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,8,0,0"
+                                   Visibility="{Binding DataContext.HasDeviceContext, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Grid>
 
@@ -901,14 +926,20 @@
         </Grid>
 
         <Grid Grid.Row="1" Visibility="{Binding IsAccessPointWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Border MaxWidth="580"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"
+                    MaxWidth="580"
                   HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
+                  VerticalAlignment="Top"
                   Background="{DynamicResource PanelBackgroundBrush}"
                   BorderBrush="{DynamicResource BorderBrush}"
                   BorderThickness="1"
                   CornerRadius="18"
                   Padding="28"
+                  Margin="0,0,0,16"
                   Visibility="{Binding HasNoCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="Сначала выберите MikroTik"
@@ -923,8 +954,8 @@
                 </StackPanel>
             </Border>
 
-            <Grid DataContext="{Binding AccessPointWizard}"
-                  Visibility="{Binding DataContext.HasCurrentDevice, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid Grid.Row="1"
+                  DataContext="{Binding AccessPointWizard}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -948,6 +979,11 @@
                                    Style="{StaticResource TitleTextStyle}" />
                         <TextBlock Text="Мастер для MikroTik внутри уже существующей сети: bridge, DHCP client и опциональный Wi-Fi."
                                    Foreground="{DynamicResource MutedTextBrush}" />
+                        <TextBlock Text="{Binding DataContext.CurrentDeviceWizardMessage, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,8,0,0"
+                                   Visibility="{Binding DataContext.HasDeviceContext, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Grid>
 

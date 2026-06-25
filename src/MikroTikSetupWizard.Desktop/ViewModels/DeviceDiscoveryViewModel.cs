@@ -1,7 +1,7 @@
 using System.Net;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Connections;
-using MikroTikSetupWizard.Application.CurrentDevice;
+using MikroTikSetupWizard.Application.DeviceContext;
 using MikroTikSetupWizard.Application.Diagnostics;
 using MikroTikSetupWizard.Application.Discovery;
 
@@ -14,7 +14,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private readonly IDeviceConnectionService _deviceConnectionService;
     private readonly IConnectionManager _connectionManager;
     private readonly IDeviceDiagnosticsService _deviceDiagnosticsService;
-    private readonly ICurrentDeviceService _currentDeviceService;
+    private readonly IDeviceContextService _deviceContextService;
     private IReadOnlyList<DeviceDiscoveryResultDto> _devices = [];
     private IReadOnlyList<DeviceDiscoveryCardViewModel> _deviceCards = [];
     private IReadOnlyList<string> _recommendations =
@@ -49,14 +49,14 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         IDeviceConnectionService deviceConnectionService,
         IConnectionManager connectionManager,
         IDeviceDiagnosticsService deviceDiagnosticsService,
-        ICurrentDeviceService currentDeviceService)
+        IDeviceContextService deviceContextService)
     {
         _deviceDiscoveryService = deviceDiscoveryService;
         _manualDiscoveryService = manualDiscoveryService;
         _deviceConnectionService = deviceConnectionService;
         _connectionManager = connectionManager;
         _deviceDiagnosticsService = deviceDiagnosticsService;
-        _currentDeviceService = currentDeviceService;
+        _deviceContextService = deviceContextService;
         FindDevicesCommand = new RelayCommand(
             async _ => await FindNearbyDevicesAsync(),
             _ => !IsDiscoveryInProgress);
@@ -388,7 +388,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     }
 
 
-    public void OpenConnectionForm(CurrentDeviceDto currentDevice)
+    public void OpenConnectionForm(DeviceContextDto currentDevice)
     {
         ArgumentNullException.ThrowIfNull(currentDevice);
 
@@ -417,7 +417,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         }
 
         SelectedDevice = device;
-        _currentDeviceService.Select(device);
+        _deviceContextService.Select(device);
         StatusMessage = $"Текущее устройство выбрано: {FormatDeviceTitle(device)}.";
     }
     private async Task ConnectToDeviceAsync()
@@ -464,6 +464,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             ConnectionStatusMessage = result.Warnings.Count == 0
                 ? result.Message
                 : $"{result.Message} {string.Join(" ", result.Warnings)}";
+            _deviceContextService.UpdateConnection(result);
         }
         catch
         {
@@ -541,6 +542,11 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             IsHostKeyConfirmationRequired =
                 result.Status == DeviceConnectionStatus.HostKeyConfirmationRequired;
             ConnectionStatusMessage = result.Message;
+
+            if (result.DeviceInfo is not null)
+            {
+                _deviceContextService.UpdateDeviceInfo(result.DeviceInfo);
+            }
         }
         catch
         {
@@ -591,6 +597,11 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
                     knownDeviceInfo?.BoardName,
                     knownDeviceInfo?.RouterOsVersion ?? device.RouterOsVersion,
                     device.DiscoveryMethod));
+
+            if (DiagnosticsResult is not null)
+            {
+                _deviceContextService.UpdateDiagnostics(DiagnosticsResult);
+            }
 
             DiagnosticsStatusMessage = "Диагностика завершена.";
         }
