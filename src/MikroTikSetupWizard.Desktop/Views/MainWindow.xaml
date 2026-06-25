@@ -1,4 +1,4 @@
-<Window x:Class="MikroTikSetupWizard.Desktop.Views.MainWindow"
+﻿<Window x:Class="MikroTikSetupWizard.Desktop.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:MikroTikSetupWizard.Desktop.Behaviors"
@@ -165,7 +165,93 @@
             </Border>
 
             <Grid Grid.Row="1" Margin="28,24,28,28">
-        <Grid Visibility="{Binding IsHomeScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{DynamicResource PanelBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="18"
+                        Margin="0,0,0,18"
+                        Visibility="{Binding HasCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20"
+                                          ShadowDepth="0"
+                                          Opacity="0.14"
+                                          Color="#000000" />
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="38"
+                                Height="38"
+                                CornerRadius="12"
+                                Background="#1E344C"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,14,0">
+                            <TextBlock Text="M"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}" />
+                        </Border>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Текущее устройство"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding CurrentDevice.Identity}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}" />
+                            <WrapPanel Margin="0,6,0,0">
+                                <TextBlock Text="IP:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDevice.IpAddress}"
+                                           Margin="0,0,18,0" />
+                                <TextBlock Text="RouterOS:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDevice.RouterOsVersion}"
+                                           Margin="0,0,18,0" />
+                                <TextBlock Text="Board:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDevice.Board}"
+                                           Margin="0,0,18,0" />
+                                <TextBlock Text="Метод:"
+                                           Foreground="{DynamicResource MutedTextBrush}"
+                                           Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding CurrentDevice.DiscoveryMethod}" />
+                            </WrapPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Button Content="Подключиться"
+                                    Command="{Binding OpenCurrentDeviceConnectionCommand}"
+                                    Margin="0,0,10,0" />
+                            <Button Content="Сменить"
+                                    Command="{Binding ShowDiagnosticsCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+        <Grid Grid.Row="1" Visibility="{Binding IsHomeScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -227,7 +313,7 @@
             </UniformGrid>
         </Grid>
 
-        <Grid Visibility="{Binding IsConfigureDeviceScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid Grid.Row="1" Visibility="{Binding IsConfigureDeviceScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -315,8 +401,31 @@
             </ScrollViewer>
         </Grid>
 
-        <Grid Visibility="{Binding IsOfficeRouterWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Grid DataContext="{Binding OfficeRouterWizard}">
+        <Grid Grid.Row="1" Visibility="{Binding IsOfficeRouterWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border MaxWidth="580"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Background="{DynamicResource PanelBackgroundBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1"
+                  CornerRadius="18"
+                  Padding="28"
+                  Visibility="{Binding HasNoCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Сначала выберите MikroTik"
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="Откройте раздел &quot;Проверить устройство&quot;, найдите MikroTik и нажмите &quot;Выбрать устройство&quot;. После этого мастер будет работать с выбранным текущим устройством."
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,10,0,18" />
+                    <Button Content="Перейти к поиску устройства"
+                            Command="{Binding ShowDiagnosticsCommand}"
+                            HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Grid DataContext="{Binding OfficeRouterWizard}"
+                  Visibility="{Binding DataContext.HasCurrentDevice, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -791,8 +900,31 @@
             </Grid>
         </Grid>
 
-        <Grid Visibility="{Binding IsAccessPointWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Grid DataContext="{Binding AccessPointWizard}">
+        <Grid Grid.Row="1" Visibility="{Binding IsAccessPointWizardVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border MaxWidth="580"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Background="{DynamicResource PanelBackgroundBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1"
+                  CornerRadius="18"
+                  Padding="28"
+                  Visibility="{Binding HasNoCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="Сначала выберите MikroTik"
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="Откройте раздел &quot;Проверить устройство&quot;, найдите MikroTik и нажмите &quot;Выбрать устройство&quot;. После этого мастер будет работать с выбранным текущим устройством."
+                               Foreground="{DynamicResource MutedTextBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,10,0,18" />
+                    <Button Content="Перейти к поиску устройства"
+                            Command="{Binding ShowDiagnosticsCommand}"
+                            HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Grid DataContext="{Binding AccessPointWizard}"
+                  Visibility="{Binding DataContext.HasCurrentDevice, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -1246,7 +1378,7 @@
             </Grid>
         </Grid>
 
-        <Grid Visibility="{Binding IsDiagnosticsScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid Grid.Row="1" Visibility="{Binding IsDiagnosticsScreenVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -1544,8 +1676,8 @@
                                                         Command="{Binding DataContext.RunDeviceDiagnosticsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Device}"
                                                         Margin="0,0,10,0" />
-                                                <Button Content="Подключиться"
-                                                        Command="{Binding DataContext.OpenConnectionFormCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                <Button Content="Выбрать устройство"
+                                                        Command="{Binding DataContext.SelectCurrentDeviceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Device}"
                                                         Style="{StaticResource SecondaryButtonStyle}" />
                                             </StackPanel>
@@ -2072,7 +2204,7 @@
             </ScrollViewer>
         </Grid>
 
-        <Grid Visibility="{Binding IsWorkspaceVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid Grid.Row="1" Visibility="{Binding IsWorkspaceVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
