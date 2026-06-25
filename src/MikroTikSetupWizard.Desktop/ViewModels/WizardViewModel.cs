@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Connections;
@@ -29,8 +29,8 @@ public sealed class WizardViewModel : ObservableObject
     private bool _isAdvancedModeActive;
     private GridLength _moduleNavigationColumnWidth = new(0);
     private Thickness _configurationPanelMargin = new(0);
-    private string _workspaceTitle = "РћС„РёСЃРЅС‹Р№ СЂРѕСѓС‚РµСЂ";
-    private string _workspaceDescription = "РўРµРєСѓС‰РёР№ MVP-СЃС†РµРЅР°СЂРёР№: Р±Р°Р·РѕРІР°СЏ СЃРµС‚СЊ Рё РїСЂРµРґРїСЂРѕСЃРјРѕС‚СЂ .rsc.";
+    private string _workspaceTitle = "Офисный роутер";
+    private string _workspaceDescription = "Текущий MVP-сценарий: базовая сеть и предпросмотр .rsc.";
     private IReadOnlyList<SetupTaskItemDto> _setupTasks = [];
     private string _routerName = "MikroTik-Office";
     private string _selectedRouterOsVersion = "RouterOS 7";
@@ -50,7 +50,7 @@ public sealed class WizardViewModel : ObservableObject
     private bool _enableBasicFirewall = true;
     private string _generatedRsc = string.Empty;
     private string _validationMessage = string.Empty;
-    private string _statusMessage = "Р“РѕС‚РѕРІРѕ Рє РіРµРЅРµСЂР°С†РёРё.";
+    private string _statusMessage = "Готово к генерации.";
     private CurrentDeviceDto? _currentDevice;
 
     public WizardViewModel(
@@ -377,12 +377,12 @@ public sealed class WizardViewModel : ObservableObject
         if (!result.IsSuccess)
         {
             GeneratedRsc = string.Empty;
-            StatusMessage = "РСЃРїСЂР°РІСЊС‚Рµ РѕС€РёР±РєРё РІ РїР°СЂР°РјРµС‚СЂР°С….";
+            StatusMessage = "Исправьте ошибки в параметрах.";
             return;
         }
 
         GeneratedRsc = result.RscText;
-        StatusMessage = "РџСЂРµРґРїСЂРѕСЃРјРѕС‚СЂ РѕР±РЅРѕРІР»С‘РЅ.";
+        StatusMessage = "Предпросмотр обновлён.";
     }
 
     private void ShowHome()
@@ -421,8 +421,8 @@ public sealed class WizardViewModel : ObservableObject
         IsAdvancedModeActive = true;
         ModuleNavigationColumnWidth = new GridLength(340);
         ConfigurationPanelMargin = new Thickness(20, 0, 0, 0);
-        WorkspaceTitle = "Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј";
-        WorkspaceDescription = "РўРµС…РЅРёС‡РµСЃРєРёР№ СЂРµР¶РёРј СЃ Device Role, Module Navigation Рё С‚РµРєСѓС‰РёРј Basic Network MVP.";
+        WorkspaceTitle = "Расширенный режим";
+        WorkspaceDescription = "Технический режим с Device Role, Module Navigation и текущим Basic Network MVP.";
         ShowScreen(workspace: true);
     }
 
@@ -487,7 +487,7 @@ public sealed class WizardViewModel : ObservableObject
         EnableBasicFirewall = true;
         GeneratedRsc = string.Empty;
         ValidationMessage = string.Empty;
-        StatusMessage = "РџСЂРѕС„РёР»СЊ \"РњР°Р»С‹Р№ РѕС„РёСЃ\" РїСЂРёРјРµРЅС‘РЅ.";
+        StatusMessage = "Профиль \"Малый офис\" применён.";
     }
 
     private async Task SaveFileAsync()
@@ -506,18 +506,18 @@ public sealed class WizardViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(path))
         {
-            StatusMessage = "РЎРѕС…СЂР°РЅРµРЅРёРµ РѕС‚РјРµРЅРµРЅРѕ.";
+            StatusMessage = "Сохранение отменено.";
             return;
         }
 
         try
         {
             await _setupWizardService.SaveRscAsync(path, GeneratedRsc);
-            StatusMessage = $"Р¤Р°Р№Р» СЃРѕС…СЂР°РЅС‘РЅ: {path}";
+            StatusMessage = $"Файл сохранён: {path}";
         }
         catch (Exception exception)
         {
-            StatusMessage = "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ С„Р°Р№Р».";
+            StatusMessage = "Не удалось сохранить файл.";
             ValidationMessage = exception.Message;
         }
     }
@@ -579,7 +579,7 @@ public sealed class WizardViewModel : ObservableObject
     {
         if (issues.Count == 0)
         {
-            return "РћС€РёР±РѕРє РЅРµС‚.";
+            return "Ошибок нет.";
         }
 
         return string.Join(

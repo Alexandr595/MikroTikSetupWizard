@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Windows.Input;
 using MikroTikSetupWizard.Application.Connections;
 using MikroTikSetupWizard.Application.CurrentDevice;
@@ -18,14 +18,14 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private IReadOnlyList<DeviceDiscoveryCardViewModel> _deviceCards = [];
     private IReadOnlyList<string> _recommendations =
     [
-        "MNDP РёС‰РµС‚ MikroTik С‚РѕР»СЊРєРѕ СЂСЏРґРѕРј, РІ РѕРґРЅРѕР№ L2-СЃРµС‚Рё. РћРЅ РЅРµ СЃРєР°РЅРёСЂСѓРµС‚ РїРѕРґСЃРµС‚Рё Рё РЅРµ РїСЂРѕС…РѕРґРёС‚ С‡РµСЂРµР· СЂРѕСѓС‚РµСЂС‹/VLAN.",
-        "Р СѓС‡РЅРѕР№ РІРІРѕРґ IP РЅРµ СЃРєР°РЅРёСЂСѓРµС‚ СЃРµС‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё.",
-        "Р”РѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РїРѕ ping РёР»Рё TCP РЅРµ РїРѕРґС‚РІРµСЂР¶РґР°РµС‚ identity, MAC Рё РІРµСЂСЃРёСЋ RouterOS.",
-        "MikroTik-РїРѕСЂС‚С‹ 8291/8728 РґР°СЋС‚ Р±РѕР»РµРµ СЃРёР»СЊРЅС‹Р№ РїСЂРёР·РЅР°Рє, РЅРѕ С‚РѕС‡РЅРѕРµ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РїРѕСЏРІРёС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ MNDP РёР»Рё Р°РІС‚РѕСЂРёР·РѕРІР°РЅРЅРѕРіРѕ РїРѕРґРєР»СЋС‡РµРЅРёСЏ."
+        "MNDP ищет MikroTik только рядом, в одной L2-сети. Он не сканирует подсети и не проходит через роутеры/VLAN.",
+        "Ручной ввод IP не сканирует сеть автоматически.",
+        "Доступность по ping или TCP не подтверждает identity, MAC и версию RouterOS.",
+        "MikroTik-порты 8291/8728 дают более сильный признак, но точное подтверждение появится только после MNDP или авторизованного подключения."
     ];
     private DeviceDiscoveryResultDto? _selectedDevice;
     private string _manualIpAddress = string.Empty;
-    private string _statusMessage = "Р’РІРµРґРёС‚Рµ IPv4 Р°РґСЂРµСЃ Рё РЅР°Р¶РјРёС‚Рµ \"Р”РѕР±Р°РІРёС‚СЊ РїРѕ IP\".";
+    private string _statusMessage = "Введите IPv4 адрес и нажмите \"Добавить по IP\".";
     private bool _isDiscoveryInProgress;
     private string _connectionIp = string.Empty;
     private string _connectionLogin = "admin";
@@ -298,7 +298,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         }
 
         IsDiscoveryInProgress = true;
-        StatusMessage = "РРґС‘С‚ РїРѕРёСЃРє MikroTik СЂСЏРґРѕРј...";
+        StatusMessage = "Идёт поиск MikroTik рядом...";
 
         try
         {
@@ -306,12 +306,12 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             Devices = MergeDevices(Devices, devices);
             SelectedDevice = devices.FirstOrDefault() ?? SelectedDevice;
             StatusMessage = devices.Count == 0
-                ? "РЈСЃС‚СЂРѕР№СЃС‚РІР° РЅРµ РЅР°Р№РґРµРЅС‹. MNDP СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РІ РѕРґРЅРѕР№ L2-СЃРµС‚Рё; РїСЂРѕРІРµСЂСЊС‚Рµ Windows Firewall, VLAN Рё Neighbor Discovery РЅР° MikroTik."
-                : $"РќР°Р№РґРµРЅРѕ {devices.Count} СѓСЃС‚СЂРѕР№СЃС‚РІ.";
+                ? "Устройства не найдены. MNDP работает только в одной L2-сети; проверьте Windows Firewall, VLAN и Neighbor Discovery на MikroTik."
+                : $"Найдено {devices.Count} устройств.";
         }
         catch (Exception exception)
         {
-            StatusMessage = $"РќРµ СѓРґР°Р»РѕСЃСЊ РІС‹РїРѕР»РЅРёС‚СЊ MNDP discovery. РџСЂРѕРІРµСЂСЊС‚Рµ Windows Firewall Рё Р°РєС‚РёРІРЅС‹Рµ СЃРµС‚РµРІС‹Рµ Р°РґР°РїС‚РµСЂС‹. {exception.Message}";
+            StatusMessage = $"Не удалось выполнить MNDP discovery. Проверьте Windows Firewall и активные сетевые адаптеры. {exception.Message}";
         }
         finally
         {
@@ -325,11 +325,11 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 
         if (!StrictIpv4AddressParser.TryParse(ipAddress, out _))
         {
-            StatusMessage = "Р’РІРµРґРёС‚Рµ IP РІ С„РѕСЂРјР°С‚Рµ 192.168.1.1 Р±РµР· РІРµРґСѓС‰РёС… РЅСѓР»РµР№.";
+            StatusMessage = "Введите IP в формате 192.168.1.1 без ведущих нулей.";
             return;
         }
 
-        StatusMessage = "РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ IP...";
+        StatusMessage = "Проверяем доступность IP...";
 
         try
         {
@@ -339,7 +339,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
             Devices = MergeDevices(Devices, [device]);
 
             SelectedDevice = device;
-            StatusMessage = $"IP {device.IpAddress} РїСЂРѕРІРµСЂРµРЅ. РЎС‚Р°С‚СѓСЃ: {device.ReachabilityStatus}.";
+            StatusMessage = $"IP {device.IpAddress} проверен. Статус: {device.ReachabilityStatus}.";
         }
         catch (Exception exception)
         {
@@ -352,7 +352,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         if (parameter is not DeviceDiscoveryResultDto device
             || string.IsNullOrWhiteSpace(device.IpAddress))
         {
-            StatusMessage = "Р”Р»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ С‚СЂРµР±СѓРµС‚СЃСЏ IP-Р°РґСЂРµСЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°.";
+            StatusMessage = "Для подключения требуется IP-адрес устройства.";
             return;
         }
 
@@ -363,7 +363,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         HostKeyFingerprint = null;
         HostKeyAlgorithm = null;
         IsHostKeyConfirmationRequired = false;
-        ConnectionStatusMessage = "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ Рё РїСЂРѕРІРµСЂСЊС‚Рµ SSH-РїРѕРґРєР»СЋС‡РµРЅРёРµ.";
+        ConnectionStatusMessage = "Введите пароль и проверьте SSH-подключение.";
         IsConnectionFormVisible = true;
     }
 
@@ -409,7 +409,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(HostKeyFingerprint))
         {
-            ConnectionStatusMessage = "Fingerprint SSH host key РЅРµ РїРѕР»СѓС‡РµРЅ.";
+            ConnectionStatusMessage = "Fingerprint SSH host key не получен.";
             return;
         }
 
@@ -425,27 +425,27 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 
         if (!IsValidIpv4(ConnectionIp))
         {
-            ConnectionStatusMessage = "РЈРєР°Р¶РёС‚Рµ РєРѕСЂСЂРµРєС‚РЅС‹Р№ IPv4 Р°РґСЂРµСЃ.";
+            ConnectionStatusMessage = "Укажите корректный IPv4 адрес.";
             return;
         }
 
         if (string.IsNullOrWhiteSpace(ConnectionLogin))
         {
-            ConnectionStatusMessage = "РЈРєР°Р¶РёС‚Рµ Р»РѕРіРёРЅ.";
+            ConnectionStatusMessage = "Укажите логин.";
             return;
         }
 
         if (string.IsNullOrEmpty(ConnectionPassword))
         {
             ConnectionStatusMessage = IsHostKeyConfirmationRequired
-                ? "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ РїРѕРІС‚РѕСЂРЅРѕ, Р·Р°С‚РµРј РїРѕРґС‚РІРµСЂРґРёС‚Рµ host key."
-                : "Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ.";
+                ? "Введите пароль повторно, затем подтвердите host key."
+                : "Введите пароль.";
             return;
         }
 
         IsConnectionInProgress = true;
         IsHostKeyConfirmationRequired = false;
-        ConnectionStatusMessage = "РџСЂРѕРІРµСЂСЏРµРј SSH host key...";
+        ConnectionStatusMessage = "Проверяем SSH host key...";
 
         try
         {
@@ -468,7 +468,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         }
         catch
         {
-            ConnectionStatusMessage = "РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ SSH-РїРѕРґРєР»СЋС‡РµРЅРёРµ.";
+            ConnectionStatusMessage = "Не удалось проверить SSH-подключение.";
             IsHostKeyConfirmationRequired = false;
         }
         finally
@@ -490,13 +490,13 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
         if (device is null || !IsValidIpv4(device.IpAddress ?? string.Empty))
         {
             DiagnosticsResult = null;
-            DiagnosticsStatusMessage = "Р”Р»СЏ РґРёР°РіРЅРѕСЃС‚РёРєРё С‚СЂРµР±СѓРµС‚СЃСЏ РєРѕСЂСЂРµРєС‚РЅС‹Р№ IPv4-Р°РґСЂРµСЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°.";
+            DiagnosticsStatusMessage = "Для диагностики требуется корректный IPv4-адрес устройства.";
             return;
         }
 
         SelectedDevice = device;
         IsDiagnosticsInProgress = true;
-        DiagnosticsStatusMessage = "Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ РґРёР°РіРЅРѕСЃС‚РёРєР° СЃРµС‚РµРІС‹С… СЃРµСЂРІРёСЃРѕРІ...";
+        DiagnosticsStatusMessage = "Выполняется диагностика сетевых сервисов...";
 
         try
         {
@@ -516,12 +516,12 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
                     knownDeviceInfo?.RouterOsVersion ?? device.RouterOsVersion,
                     device.DiscoveryMethod));
 
-            DiagnosticsStatusMessage = "Р”РёР°РіРЅРѕСЃС‚РёРєР° Р·Р°РІРµСЂС€РµРЅР°.";
+            DiagnosticsStatusMessage = "Диагностика завершена.";
         }
         catch (Exception)
         {
             DiagnosticsResult = null;
-            DiagnosticsStatusMessage = "РќРµ СѓРґР°Р»РѕСЃСЊ РІС‹РїРѕР»РЅРёС‚СЊ РґРёР°РіРЅРѕСЃС‚РёРєСѓ. РџСЂРѕРІРµСЂСЊС‚Рµ СЃРµС‚РµРІРѕР№ Р°РґР°РїС‚РµСЂ, Р°РґСЂРµСЃ СѓСЃС‚СЂРѕР№СЃС‚РІР° Рё РїСЂР°РІРёР»Р° Windows Firewall.";
+            DiagnosticsStatusMessage = "Не удалось выполнить диагностику. Проверьте сетевой адаптер, адрес устройства и правила Windows Firewall.";
         }
         finally
         {
@@ -579,7 +579,7 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     private static bool HasKnownValue(string? value)
     {
         return !string.IsNullOrWhiteSpace(value)
-            && !string.Equals(value, "РќРµРёР·РІРµСЃС‚РЅРѕ", StringComparison.OrdinalIgnoreCase);
+            && !string.Equals(value, "Неизвестно", StringComparison.OrdinalIgnoreCase);
     }
 
 
@@ -641,19 +641,19 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
     {
         if (hasDiagnostics)
         {
-            return "Р”РёР°РіРЅРѕСЃС‚РёРєР° РІС‹РїРѕР»РЅРµРЅР°";
+            return "Диагностика выполнена";
         }
 
         if (hasConnectedInfo)
         {
-            return "РџРѕРґРєР»СЋС‡РµРЅРёРµ СѓСЃРїРµС€РЅРѕ";
+            return "Подключение успешно";
         }
 
         return IsNeighborDiscovery(discoveryMethod)
-            ? "РќР°Р№РґРµРЅ С‡РµСЂРµР· MNDP"
+            ? "Найден через MNDP"
             : string.Equals(discoveryMethod, "Manual", StringComparison.OrdinalIgnoreCase)
-                ? "Р”РѕР±Р°РІР»РµРЅ РІСЂСѓС‡РЅСѓСЋ"
-                : "РЎС‚Р°С‚СѓСЃ РЅРµРёР·РІРµСЃС‚РµРЅ";
+                ? "Добавлен вручную"
+                : "Статус неизвестен";
     }
 
     private static string FormatDiscoveryMethod(string discoveryMethod)
@@ -686,18 +686,18 @@ public sealed class DeviceDiscoveryViewModel : ObservableObject
 
     private static string FirstKnown(params string?[] values)
     {
-        return values.FirstOrDefault(IsDisplayValueKnown)?.Trim() ?? "РќРµРёР·РІРµСЃС‚РЅРѕ";
+        return values.FirstOrDefault(IsDisplayValueKnown)?.Trim() ?? "Неизвестно";
     }
 
     private static string NormalizeDisplayValue(string? value)
     {
-        return IsDisplayValueKnown(value) ? value!.Trim() : "РќРµРёР·РІРµСЃС‚РЅРѕ";
+        return IsDisplayValueKnown(value) ? value!.Trim() : "Неизвестно";
     }
 
     private static bool IsDisplayValueKnown(string? value)
     {
         return !string.IsNullOrWhiteSpace(value)
-            && !string.Equals(value, "РќРµРёР·РІРµСЃС‚РЅРѕ", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(value, "Неизвестно", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(value, "Unknown", StringComparison.OrdinalIgnoreCase);
     }
 }
